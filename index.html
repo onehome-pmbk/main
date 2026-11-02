@@ -1661,6 +1661,24 @@ function doPost(e) {
       }).join('');
     }
 
+    function formatNoteDate(rawDate) {
+      if (!rawDate) return '-';
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          const yearBE = d.getFullYear() > 2400 ? d.getFullYear() : d.getFullYear() + 543;
+          const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+          return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${yearBE}`;
+        }
+      } catch (e) {}
+      const m = String(rawDate).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (m) {
+        const y = parseInt(m[1]) > 2400 ? parseInt(m[1]) : parseInt(m[1]) + 543;
+        return `${parseInt(m[3])}/${parseInt(m[2])}/${y}`;
+      }
+      return String(rawDate).substring(0, 10);
+    }
+
     // Render Section 2: Notes Gallery
     function renderGalleryNotes() {
       const container = document.getElementById('notes-gallery-grid');
@@ -1688,7 +1706,7 @@ function doPost(e) {
                               'bg-slate-100 text-slate-800 border-slate-300';
 
         const imageHtml = note.image ? `
-          <div class="relative h-48 w-full overflow-hidden bg-slate-100 cursor-pointer group/img" onclick="openLightbox('${note.image}', '${escapeHtml(note.title)}')">
+          <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100 cursor-pointer group/img" onclick="openLightbox('${note.image}', '${escapeHtml(note.title)}')">
             <img src="${note.image}" alt="${escapeHtml(note.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105">
             <div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-semibold gap-1.5">
               <i class="fa-solid fa-magnifying-glass-plus"></i> คลิกเพื่อดูภาพขยาย
@@ -1700,13 +1718,13 @@ function doPost(e) {
           <div class="group bg-white rounded-3xl border border-slate-200/90 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden">
             <div>
               ${imageHtml}
-              <div class="p-6">
+              <div class="p-5 sm:p-6">
                 <div class="flex items-center justify-between gap-2 mb-3">
-                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${catBadgeClass}">
+                  <span class="px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap shrink-0 shadow-sm ${catBadgeClass}">
                     ${note.category}
                   </span>
-                  <span class="text-xs text-slate-400 flex items-center gap-1">
-                    <i class="fa-regular fa-calendar"></i> ${note.date}
+                  <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                    <i class="fa-regular fa-calendar text-slate-400"></i> ${formatNoteDate(note.date)}
                   </span>
                 </div>
                 <h3 class="text-base font-bold text-slate-900 group-hover:text-pink-600 transition-colors line-clamp-2 mb-2">
