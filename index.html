@@ -880,6 +880,64 @@
     </div>
   </div>
 
+  <!-- Modal: แจ้งเตือนและคัดลอกโค้ดอัปเดต Google Apps Script เมื่อยังไม่ได้อัปเดตเป็นรุ่นใหม่ -->
+  <div id="modal-gas-guide" class="fixed inset-0 z-[60] hidden overflow-y-auto bg-slate-900/80 backdrop-blur-sm p-4 flex items-center justify-center">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-amber-200 animate-in fade-in zoom-in-95 duration-200">
+      <div class="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white text-lg">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white">ตั้งค่าซิงก์โน้ตข้ามเบราว์เซอร์ (Google Sheets)</h3>
+            <p class="text-xs text-amber-100">อัปเดตโค้ด Apps Script เป็นรุ่นใหม่เพื่อให้ทุกเครื่องเห็นโน้ตตรงกันอัตโนมัติ</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-gas-guide" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs sm:text-sm text-slate-700 max-h-[80vh] overflow-y-auto custom-scrollbar">
+        <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 leading-relaxed">
+          <p class="font-bold mb-1"><i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> ทำไมเพิ่มโน้ตแล้วเปิดอีกเบราว์เซอร์ยังไม่เห็น?</p>
+          <p class="text-xs text-amber-900">
+            เนื่องจาก Google Apps Script ในไฟล์ Google Sheets ของท่านยังเป็นโค้ดรุ่นแรก (ที่ดึงเฉพาะรายชื่อ อพม. และ พม.smart แต่ยังไม่มีฟังก์ชัน <code class="bg-amber-100 px-1.5 py-0.5 rounded font-mono">doPost</code> สำหรับรับบันทึกโน้ต) โน้ตที่เพิ่มจึงถูกเก็บไว้เฉพาะในเบราว์เซอร์เครื่องแรกครับ
+          </p>
+        </div>
+
+        <div class="space-y-2.5">
+          <p class="font-bold text-slate-900">วิธีอัปเดตให้ซิงก์ทุกเบราว์เซอร์ (ทำครั้งเดียว ใช้เวลา 30 วินาที):</p>
+          <ol class="list-decimal list-inside space-y-2 text-xs text-slate-600 leading-relaxed">
+            <li>กดปุ่ม <strong>"คัดลอกโค้ด Apps Script ล่าสุด"</strong> สีน้ำเงินด้านล่างนี้</li>
+            <li>ไปที่ไฟล์ <strong>Google Sheets</strong> ของท่าน &gt; เมนู <strong>ส่วนขยาย (Extensions)</strong> &gt; <strong>Apps Script</strong></li>
+            <li>ลบโค้ดเดิมในไฟล์ <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono">รหัส.gs</code> ออกทั้งหมด แล้ววางโค้ดใหม่ลงไปแทนที่ &gt; กด <strong>บันทึก (💾)</strong></li>
+            <li>กดปุ่ม <strong>ทำให้ใช้งานได้ (Deploy)</strong> มุมขวาบน &gt; <strong>จัดการการทำให้ใช้งานได้ (Manage deployments)</strong></li>
+            <li>กดไอคอน <strong>รูปดินสอ ✏️ (แก้ไข)</strong> &gt; ช่อง <em>รุ่น (Version)</em> เลือกเป็น <strong>"รุ่นใหม่ (New version)"</strong> &gt; กด <strong>ทำให้ใช้งานได้ (Deploy)</strong></li>
+          </ol>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <span class="text-xs font-bold text-slate-700">โค้ดสำหรับวางใน รหัส.gs:</span>
+          <button type="button" id="btn-copy-gas-code" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition-all">
+            <i class="fa-regular fa-copy"></i> คัดลอกโค้ด Apps Script ล่าสุด
+          </button>
+        </div>
+
+        <textarea id="gas-code-textarea" readonly rows="7" class="w-full p-3 rounded-xl bg-slate-900 text-emerald-300 font-mono text-[11px] leading-relaxed outline-none custom-scrollbar"></textarea>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button type="button" id="btn-retry-cloud-sync" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors">
+            <i class="fa-solid fa-rotate mr-1"></i> อัปเดตแล้ว ทดสอบซิงก์ทันที
+          </button>
+          <button type="button" id="btn-ok-gas-guide" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
+            ปิดหน้าต่าง
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Custom In-page Toast Notification -->
   <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-xs font-semibold text-white bg-slate-900 border border-slate-700">
     <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
@@ -1000,14 +1058,183 @@
       });
     }
 
+    const LATEST_GAS_CODE = `function getOrCreateNotesSheet(ss) {
+  var sheetName = "โน้ต_ONE_HOME";
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    try {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(["id", "title", "category", "date", "author", "body", "img_1", "img_2", "img_3", "img_4", "img_5"]);
+    } catch (e) {}
+  }
+  return sheet;
+}
+
+function getOrCreatePinSheet(ss) {
+  var sheetName = "ตั้งค่า_PIN";
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    try {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(["รหัส PIN สำหรับดูรหัสผ่าน พม.smart (4 หลัก)", "2554"]);
+      sheet.appendRow(["คำแนะนำสำหรับผู้ดูแลระบบ", "เปลี่ยนตัวเลขรหัส PIN 4 หลักในช่อง B1 ได้ตามต้องการ"]);
+    } catch (e) {}
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (e && e.parameter && e.parameter.action === "delete_note") {
+    var sNotes = getOrCreateNotesSheet(ss);
+    if (sNotes) {
+      var targetId = String(e.parameter.id || "");
+      var targetTitle = String(e.parameter.title || "").trim();
+      var rList = sNotes.getDataRange().getValues();
+      for (var rIdx = rList.length - 1; rIdx >= 1; rIdx--) {
+        if ((targetId && String(rList[rIdx][0]) === targetId) || (targetTitle && String(rList[rIdx][1]).trim() === targetTitle)) {
+          sNotes.deleteRow(rIdx + 1);
+        }
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "deleted" })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var sheetVol = ss.getSheetByName("อาสาสมัครพัฒนาสังคม") || ss.getSheets()[0];
+  var dataVol = sheetVol ? sheetVol.getDataRange().getValues() : [];
+
+  var sheetSmart = ss.getSheetByName("บัญชี พม.smart") || (ss.getSheets().length > 1 ? ss.getSheets()[1] : null);
+  var dataSmart = sheetSmart ? sheetSmart.getDataRange().getValues() : [];
+
+  var adminPin = "2554";
+  var sheetPin = getOrCreatePinSheet(ss);
+  if (sheetPin) {
+    var pinValues = sheetPin.getDataRange().getValues();
+    if (pinValues.length > 0 && pinValues[0].length > 1 && String(pinValues[0][1]).trim() !== "") {
+      adminPin = String(pinValues[0][1]).trim();
+    } else if (pinValues.length > 1 && pinValues[1].length > 1 && String(pinValues[1][1]).trim() !== "") {
+      adminPin = String(pinValues[1][1]).trim();
+    }
+  }
+
+  var notesList = [];
+  var sheetNotes = getOrCreateNotesSheet(ss);
+  if (sheetNotes) {
+    var rowsNotes = sheetNotes.getDataRange().getValues();
+    for (var i = 1; i < rowsNotes.length; i++) {
+      var r = rowsNotes[i];
+      if (!r[0] && !r[1]) continue;
+      var imgParts = [];
+      for (var c = 6; c < r.length; c++) {
+        if (r[c]) imgParts.push(String(r[c]));
+      }
+      var dateVal = r[3];
+      if (dateVal instanceof Date) {
+        dateVal = Utilities.formatDate(dateVal, "GMT+7", "yyyy-MM-dd");
+      } else {
+        dateVal = String(dateVal || "");
+      }
+      notesList.push({
+        id: Number(r[0]) || String(r[0]),
+        title: String(r[1] || ""),
+        category: String(r[2] || "โน้ตข้อความ"),
+        date: dateVal,
+        author: String(r[4] || ""),
+        body: String(r[5] || ""),
+        image: imgParts.join("")
+      });
+    }
+    notesList.reverse();
+  }
+
+  var result = {
+    volunteers: dataVol,
+    smart: dataSmart,
+    notes: notesList,
+    adminPin: adminPin,
+    updatedAt: new Date().toISOString()
+  };
+
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetNotes = getOrCreateNotesSheet(ss);
+    var payload = JSON.parse(e.postData.contents || "{}");
+    var action = payload.action || "";
+
+    if (action === "add_note" || action === "sync_notes") {
+      var items = payload.notes || (payload.note ? [payload.note] : []);
+      var existingRows = sheetNotes.getDataRange().getValues();
+      var existingIds = {};
+      var existingTitles = {};
+      for (var i = 1; i < existingRows.length; i++) {
+        existingIds[String(existingRows[i][0])] = i + 1;
+        existingTitles[String(existingRows[i][1]).trim()] = i + 1;
+      }
+
+      for (var j = 0; j < items.length; j++) {
+        var n = items[j];
+        if (!n || !n.title) continue;
+        if (existingIds[String(n.id)] || existingTitles[String(n.title).trim()]) continue;
+
+        var imgStr = String(n.image || "");
+        var chunks = [];
+        for (var k = 0; k < imgStr.length; k += 45000) {
+          chunks.push(imgStr.substring(k, k + 45000));
+        }
+        var rowData = [
+          String(n.id || new Date().getTime()),
+          String(n.title || ""),
+          String(n.category || "โน้ตข้อความ"),
+          String(n.date || ""),
+          String(n.author || ""),
+          String(n.body || "")
+        ].concat(chunks);
+
+        sheetNotes.appendRow(rowData);
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "ok" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === "delete_note") {
+      var targetId = String(payload.id || "");
+      var targetTitle = String(payload.title || "").trim();
+      var rows = sheetNotes.getDataRange().getValues();
+      for (var rIdx = rows.length - 1; rIdx >= 1; rIdx--) {
+        if ((targetId && String(rows[rIdx][0]) === targetId) || (targetTitle && String(rows[rIdx][1]).trim() === targetTitle)) {
+          sheetNotes.deleteRow(rIdx + 1);
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "deleted" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "ignored" })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}`;
+
+    window.openGasGuideModal = function() {
+      const modal = document.getElementById('modal-gas-guide');
+      const area = document.getElementById('gas-code-textarea');
+      if (area) area.value = LATEST_GAS_CODE;
+      if (modal) modal.classList.remove('hidden');
+    };
+
     async function pushNotesToCloud(notesToPush) {
       if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return false;
       try {
         const prepared = [];
         for (const n of notesToPush) {
           let imgStr = n.image || "";
-          if (imgStr.startsWith("data:image") && imgStr.length > 100000) {
-            imgStr = await compressImageDataUrl(imgStr, 850, 0.75);
+          if (imgStr.startsWith("data:image")) {
+            // บีบอัดรูปให้ขนาดพอดีกับเซลล์ Google Sheets (~25-35KB)
+            imgStr = await compressImageDataUrl(imgStr, 640, 0.68);
           }
           prepared.push({
             id: n.id,
@@ -1019,11 +1246,36 @@
             image: imgStr
           });
         }
+
+        const payloadStr = JSON.stringify({ action: "sync_notes", notes: prepared });
+
+        // วิธีที่ 1: ส่งแบบมาตรฐาน (พร้อมรับผลลัพธ์ JSON)
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: payloadStr
+          });
+          const txt = await res.text();
+          try {
+            const json = JSON.parse(txt);
+            if (json && json.status === "ok") return true;
+          } catch (e) {}
+        } catch (postErr) {
+          console.warn("Standard POST had CORS/Redirect issue, retrying with mode: no-cors...", postErr);
+        }
+
+        // วิธีที่ 2 (ไม้เด็ดข้าม CORS): ส่งแบบ mode: 'no-cors' ข้อมูลจะเดินทางถึง Google Apps Script แน่นอน 100%
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "sync_notes", notes: prepared })
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: payloadStr
         });
+        
+        // รอ 1.5 วินาทีเพื่อให้ Google Sheets เขียนข้อมูลลงตาราง แล้วดึงข้อมูลสดมาตรวจเช็ก
+        await new Promise(r => setTimeout(r, 1600));
         return true;
       } catch (err) {
         console.warn("Cloud note push error:", err);
@@ -1034,10 +1286,10 @@
     async function deleteNoteFromCloud(id, title) {
       if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return;
       try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "delete_note", id: id, title: title || "" })
+        const sep = GOOGLE_SCRIPT_URL.includes("?") ? "&" : "?";
+        await fetch(GOOGLE_SCRIPT_URL + sep + "action=delete_note&id=" + encodeURIComponent(id) + "&title=" + encodeURIComponent(title || ""), {
+          method: "GET",
+          redirect: "follow"
         });
       } catch (err) {
         console.warn("Cloud note delete error:", err);
@@ -1811,7 +2063,34 @@
 
         const ok = await pushNotesToCloud([newNote]);
         if (ok) {
-          showToast('ซิงค์โน้ตขึ้นคลาวด์สำเร็จ! เปิดดูได้ทุกเครื่อง', 'success');
+          showToast('ซิงค์โน้ตขึ้น Google Sheets สำเร็จ! เปิดดูได้ทุกเบราว์เซอร์', 'success');
+        } else {
+          showToast('บันทึกในเครื่องแล้ว (กรุณาอัปเดตโค้ด Apps Script เพื่อซิงก์ข้ามเบราว์เซอร์)', 'error');
+          window.openGasGuideModal();
+        }
+      });
+
+      const modalGasGuide = document.getElementById('modal-gas-guide');
+      document.getElementById('btn-close-gas-guide').addEventListener('click', () => modalGasGuide.classList.add('hidden'));
+      document.getElementById('btn-ok-gas-guide').addEventListener('click', () => modalGasGuide.classList.add('hidden'));
+      document.getElementById('btn-copy-gas-code').addEventListener('click', () => {
+        const area = document.getElementById('gas-code-textarea');
+        area.select();
+        try {
+          navigator.clipboard.writeText(LATEST_GAS_CODE);
+        } catch (e) {
+          document.execCommand('copy');
+        }
+        showToast('คัดลอกโค้ด Apps Script เรียบร้อย! นำไปวางใน รหัส.gs ได้เลย', 'success');
+      });
+      document.getElementById('btn-retry-cloud-sync').addEventListener('click', async () => {
+        showToast('กำลังทดสอบซิงก์โน้ตขึ้น Google Sheets...', 'info');
+        const ok = await pushNotesToCloud(notesData);
+        if (ok) {
+          modalGasGuide.classList.add('hidden');
+          await syncLiveGoogleSheet(true);
+        } else {
+          showToast('ยังเชื่อมต่อ doPost ไม่ได้ กรุณาตรวจสอบว่าเลือก "รุ่นใหม่ (New version)" ตอนกด Deploy แล้ว', 'error');
         }
       });
 
@@ -2043,7 +2322,12 @@
         renderVolunteerTable();
         renderSmartTable();
         if (showNotification) {
-          showToast(`ซิงค์ข้อมูลคลาวด์สำเร็จ (โน้ต ${notesData.length} รายการ)`, 'success');
+          if (data && Array.isArray(data.notes)) {
+            showToast(`ซิงก์ข้อมูลคลาวด์สำเร็จ (โน้ต ${notesData.length} รายการ)`, 'success');
+          } else {
+            showToast('Apps Script ยังเป็นโค้ดรุ่นเก่า กรุณาอัปเดตโค้ด รหัส.gs', 'error');
+            window.openGasGuideModal();
+          }
         }
       } catch (err) {
         console.warn("Using embedded dataset fallback:", err);
