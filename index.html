@@ -1661,6 +1661,28 @@ function doPost(e) {
       }).join('');
     }
 
+    function getNoteTimestamp(note) {
+      if (!note) return 0;
+      if (note.date) {
+        const t = new Date(note.date).getTime();
+        if (!isNaN(t) && t > 0) return t;
+      }
+      if (note.id && !isNaN(Number(note.id)) && Number(note.id) > 1000000000) {
+        return Number(note.id);
+      }
+      return 0;
+    }
+
+    function sortNotesDescending(list) {
+      if (!Array.isArray(list)) return [];
+      return [...list].sort((a, b) => {
+        const tA = getNoteTimestamp(a);
+        const tB = getNoteTimestamp(b);
+        if (tB !== tA) return tB - tA;
+        return Number(b.id || 0) - Number(a.id || 0);
+      });
+    }
+
     function formatNoteDate(rawDate) {
       if (!rawDate) return '-';
       try {
@@ -1679,11 +1701,13 @@ function doPost(e) {
       return String(rawDate).substring(0, 10);
     }
 
-    // Render Section 2: Notes Gallery
+    // Render Section 2: Notes Gallery (เรียงลำดับรายการล่าสุดขึ้นก่อนเสมอ)
     function renderGalleryNotes() {
       const container = document.getElementById('notes-gallery-grid');
       const emptyState = document.getElementById('notes-empty-state');
       
+      notesData = sortNotesDescending(notesData);
+
       const filtered = notesData.filter(note => {
         if (currentNoteCategory === 'ALL') return true;
         return note.category === currentNoteCategory;
@@ -2065,6 +2089,7 @@ function doPost(e) {
         };
 
         notesData.unshift(newNote);
+        notesData = sortNotesDescending(notesData);
         try {
           localStorage.setItem('one_home_clean_notes_v2', JSON.stringify(notesData));
         } catch (err) {}
@@ -2322,9 +2347,9 @@ function doPost(e) {
             pushNotesToCloud(localOnly);
           }
 
-          // รวมโน้ตจากคลาวด์และในเครื่องโดยไม่ซ้ำกัน
+          // รวมโน้ตจากคลาวด์และในเครื่องโดยไม่ซ้ำกัน และเรียงลำดับล่าสุดขึ้นก่อนเสมอ
           const merged = [...localOnly, ...cloudNotes];
-          notesData = merged;
+          notesData = sortNotesDescending(merged);
           try {
             localStorage.setItem('one_home_clean_notes_v2', JSON.stringify(notesData));
           } catch (e) {}
