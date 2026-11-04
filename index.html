@@ -2174,11 +2174,11 @@ function doPost(e) {
             </div>
             <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end text-xs">
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="editNote(${note.id})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="แก้ไขโน้ตนี้">
+                <button type="button" onclick="editNote('${note.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="แก้ไขโน้ตนี้">
                   <i class="fa-regular fa-pen-to-square text-amber-600"></i>
                   <span>แก้ไข</span>
                 </button>
-                <button type="button" onclick="deleteNote(${note.id})" class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer" title="ลบโน้ตนี้">
+                <button type="button" onclick="deleteNote('${note.id}')" class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer" title="ลบโน้ตนี้">
                   <i class="fa-regular fa-trash-can text-xs"></i>
                 </button>
               </div>
@@ -2343,6 +2343,59 @@ function doPost(e) {
       }
     } catch(e) { officialDocsData = []; }
 
+    let deletedDocIds = [];
+    try {
+      const savedDelDocs = localStorage.getItem("one_home_deleted_doc_ids");
+      if (savedDelDocs) deletedDocIds = JSON.parse(savedDelDocs);
+    } catch(e) {}
+
+    async function pushDocsToCloud(docsToPush) {
+      if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return false;
+      try {
+        const payloadStr = JSON.stringify({ action: "sync_docs", docs: docsToPush });
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: payloadStr
+          });
+          const txt = await res.text();
+          try {
+            const json = JSON.parse(txt);
+            if (json && json.status === "ok") return true;
+          } catch (e) {}
+        } catch (postErr) {
+          console.warn("Standard POST had issue, retrying with no-cors...", postErr);
+        }
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: payloadStr
+        });
+        await new Promise(r => setTimeout(r, 1600));
+        return true;
+      } catch (err) {
+        console.warn("Cloud docs push error:", err);
+        return false;
+      }
+    }
+
+    async function deleteDocFromCloud(id, title) {
+      if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return;
+      try {
+        const sep = GOOGLE_SCRIPT_URL.includes("?") ? "&" : "?";
+        await fetch(GOOGLE_SCRIPT_URL + sep + "action=delete_doc&id=" + encodeURIComponent(id) + "&title=" + encodeURIComponent(title || ""), {
+          method: "GET",
+          redirect: "follow"
+        });
+      } catch (err) {
+        console.warn("Cloud doc delete error:", err);
+      }
+    }
+
     function formatDocDate(dateStr) {
       if (!dateStr) return "-";
       const parts = dateStr.split("-");
@@ -2466,11 +2519,11 @@ function doPost(e) {
 
             <!-- Col 6: Actions (110px, right-aligned) -->
             <div class="flex items-center justify-end gap-1.5 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-              <button type="button" onclick="editOfficialDoc(${doc.id})" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-xs transition-all hover:scale-105 cursor-pointer" title="แก้ไขข้อมูลหนังสือนี้">
+              <button type="button" onclick="editOfficialDoc('${doc.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-xs transition-all hover:scale-105 cursor-pointer" title="แก้ไขข้อมูลหนังสือนี้">
                 <i class="fa-regular fa-pen-to-square text-amber-600"></i>
                 <span class="text-[11px]">แก้ไข</span>
               </button>
-              <button type="button" onclick="deleteOfficialDoc(${doc.id})" class="inline-flex items-center justify-center w-8 h-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer" title="ลบหนังสือนี้">
+              <button type="button" onclick="deleteOfficialDoc('${doc.id}')" class="inline-flex items-center justify-center w-8 h-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer" title="ลบหนังสือนี้">
                 <i class="fa-regular fa-trash-can text-xs"></i>
               </button>
             </div>
@@ -2583,6 +2636,7 @@ function doPost(e) {
     };
 
     window.deleteOfficialDoc = function(id) {
+      
       const target = officialDocsData.find(d => String(d.id) === String(id));
       officialDocsData = officialDocsData.filter(d => String(d.id) !== String(id));
       deletedDocIds.push(String(id));
@@ -3306,58 +3360,7 @@ function doPost(e) {
 
 
       
-    let deletedDocIds = [];
-    try {
-      const savedDelDocs = localStorage.getItem("one_home_deleted_doc_ids");
-      if (savedDelDocs) deletedDocIds = JSON.parse(savedDelDocs);
-    } catch(e) {}
 
-    async function pushDocsToCloud(docsToPush) {
-      if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return false;
-      try {
-        const payloadStr = JSON.stringify({ action: "sync_docs", docs: docsToPush });
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: payloadStr
-          });
-          const txt = await res.text();
-          try {
-            const json = JSON.parse(txt);
-            if (json && json.status === "ok") return true;
-          } catch (e) {}
-        } catch (postErr) {
-          console.warn("Standard POST had issue, retrying with no-cors...", postErr);
-        }
-
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
-          body: payloadStr
-        });
-        await new Promise(r => setTimeout(r, 1600));
-        return true;
-      } catch (err) {
-        console.warn("Cloud docs push error:", err);
-        return false;
-      }
-    }
-
-    async function deleteDocFromCloud(id, title) {
-      if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return;
-      try {
-        const sep = GOOGLE_SCRIPT_URL.includes("?") ? "&" : "?";
-        await fetch(GOOGLE_SCRIPT_URL + sep + "action=delete_doc&id=" + encodeURIComponent(id) + "&title=" + encodeURIComponent(title || ""), {
-          method: "GET",
-          redirect: "follow"
-        });
-      } catch (err) {
-        console.warn("Cloud doc delete error:", err);
-      }
-    }
 
       // Section 3: Official Docs Event Listeners
       renderOfficialDocs();
@@ -3529,6 +3532,7 @@ function doPost(e) {
     }
 
     window.deleteNote = function(id) {
+      
       const target = notesData.find(n => String(n.id) === String(id));
       notesData = notesData.filter(n => String(n.id) !== String(id));
       deletedNoteIds.push(String(id));
@@ -3765,5 +3769,3 @@ function doPost(e) {
   </script>
 </body>
 </html>
-
-
