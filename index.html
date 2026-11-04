@@ -2007,7 +2007,7 @@ function doPost(e) {
             <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100 cursor-pointer group/img" onclick="openNoteLightbox(${note.id}, 0)">
               <img src="${images[0]}" alt="${escapeHtml(note.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105">
               <button type="button" onclick="event.stopPropagation(); downloadSingleImage('${images[0]}', '${escapeHtml(note.title).replace(/[\/:*?\"<>|]/g, '_')}_1.jpg')" class="absolute top-2.5 left-2.5 bg-slate-900/80 hover:bg-sky-600 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md transition-colors z-10 cursor-pointer" title="ดาวน์โหลดรูปภาพนี้">
-                <i class="fa-solid fa-download"></i> โหลดรูป
+                <i class="fa-solid fa-download"></i> โหลด
               </button>
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-semibold gap-1.5">
                 <i class="fa-solid fa-magnifying-glass-plus"></i> คลิกเพื่อดูภาพขยาย
@@ -2032,7 +2032,7 @@ function doPost(e) {
               <div class="relative h-44 sm:h-48 w-full overflow-hidden">
                 <img src="${images[0]}" alt="${escapeHtml(note.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105">
                 <button type="button" onclick="event.stopPropagation(); downloadNoteImages(${note.id})" class="absolute top-2.5 left-2.5 bg-slate-900/80 hover:bg-sky-600 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md transition-colors z-10 cursor-pointer" title="ดาวน์โหลดรูปภาพทั้งหมด (${images.length} รูป)">
-                  <i class="fa-solid fa-download"></i> โหลดรูป (${images.length})
+                  <i class="fa-solid fa-download"></i> โหลด (${images.length})
                 </button>
                 <div class="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md">
                   <i class="fa-solid fa-images text-pink-400"></i> ${images.length} รูปภาพ
@@ -2074,12 +2074,12 @@ function doPost(e) {
               </div>
             </div>
             <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span class="text-slate-400 text-[11px]">บันทึกในระบบกลาง ONE HOME</span>
+              <span class="text-slate-400 text-[11px]"></span>
               <div class="flex items-center gap-1.5">
                 ${images.length > 0 ? `
                 <button type="button" onclick="downloadNoteImages(${note.id})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="ดาวน์โหลดรูปภาพทั้งหมด (${images.length} รูป)">
                   <i class="fa-solid fa-download text-sky-600"></i>
-                  <span>โหลดรูป (${images.length})</span>
+                  <span>โหลด (${images.length})</span>
                 </button>
                 ` : ''}
                 <button type="button" onclick="editNote(${note.id})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="แก้ไขโน้ตนี้">
