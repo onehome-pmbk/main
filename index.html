@@ -368,6 +368,86 @@
       </div>
     </section>
 
+
+    <!-- ========================================================= -->
+    <!-- SECTION 3: บันทึกหนังสือราชการ (Official Documents)         -->
+    <!-- รูปแบบคอลัมน์แนวนอนแต่ละรายการ (Horizontal Row Columns)     -->
+    <!-- รองรับการอัปโหลด Word (.doc, .docx), PDF, เพิ่ม, ลบ, แก้ไข -->
+    <!-- ========================================================= -->
+    <section id="section-official-docs" class="mt-12 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8">
+      <div class="max-w-7xl mx-auto">
+
+        <!-- Header: Title, Search, Filter and Action Button -->
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200/80 text-indigo-700 flex items-center justify-center text-lg shadow-sm">
+                <i class="fa-solid fa-file-contract"></i>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  หนังสือราชการ
+                  <span id="doc-total-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    3 รายการ
+                  </span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  ระบบบันทึกและจัดเก็บหนังสือราชการ หนังสือเวียน และเอกสารคำสั่ง
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls in ONE neat row: Search + Filter + Add Button -->
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+            <!-- Search in Docs -->
+            <div class="relative w-full sm:w-60 md:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="doc-search-input" placeholder="ค้นหาเลขที่, เรื่อง, หน่วยงาน..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-xs outline-none transition-all">
+            </div>
+
+            <!-- Filter Type Select -->
+            <select id="doc-filter-type" class="w-full sm:w-40 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shrink-0">
+              <option value="ALL">ไฟล์ทั้งหมด</option>
+              <option value="pdf">เฉพาะไฟล์ PDF (.pdf)</option>
+              <option value="word">เฉพาะไฟล์ Word (.docx)</option>
+            </select>
+
+            <!-- Add Doc Button (Moved to right in same row!) -->
+            <button type="button" id="btn-open-add-doc" onclick="openAddDocModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/25 hover:shadow-lg hover:shadow-indigo-600/35 hover:scale-[1.02] transition-all cursor-pointer shrink-0 whitespace-nowrap">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span>+ บันทึกหนังสือราชการ</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Header (Full 100% Width with 1fr Title Column) -->
+        <div class="hidden lg:grid px-6 py-3.5 mt-4 bg-slate-100/90 rounded-2xl text-[11px] font-bold text-slate-600 uppercase tracking-wider" style="grid-template-columns: 85px 150px 1fr 180px 190px 110px; gap: 1.25rem; align-items: center; width: 100%;">
+          <div class="text-center">ประเภท</div>
+          <div>เลขที่ / วันที่</div>
+          <div>ชื่อเรื่องหนังสือราชการ / สาระสำคัญ</div>
+          <div>หน่วยงานเจ้าของเรื่อง</div>
+          <div class="text-center">เอกสารแนบ</div>
+          <div class="text-right">จัดการ</div>
+        </div>
+
+        <!-- Horizontal Rows Container (คอลัมน์แนวนอนแต่ละรายการ) -->
+        <div id="docs-horizontal-list" class="space-y-3 mt-3">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Empty State for Docs -->
+        <div id="docs-empty-state" class="hidden text-center py-16">
+          <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-400 mx-auto flex items-center justify-center text-2xl mb-3">
+            <i class="fa-regular fa-file-lines"></i>
+          </div>
+          <h3 class="text-base font-semibold text-slate-700">ไม่พบรายการหนังสือราชการ</h3>
+          <p class="text-xs text-slate-500 mt-1">คลิกปุ่ม "+ บันทึกหนังสือราชการ" เพื่อเพิ่มข้อมูลและอัปโหลดเอกสาร Word หรือ PDF</p>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer -->
@@ -670,8 +750,10 @@
               <i class="fa-solid fa-note-sticky text-lg"></i>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-white">+ เพิ่มโน้ต / คำสั่ง</h3>
-              <p class="text-xs text-pink-100">ทุกคนที่เข้าเว็บไซต์สามารถสร้างและบันทึกโพสต์ใหม่ได้</p>
+              <h3 id="modal-add-note-title" class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-note-sticky text-pink-200"></i> + เพิ่มโน้ต / คำสั่ง
+              </h3>
+              <p id="modal-add-note-subtitle" class="text-xs text-pink-100">ทุกคนที่เข้าเว็บไซต์สามารถสร้างและบันทึกโพสต์ใหม่ได้</p>
             </div>
           </div>
           <button id="btn-close-modal-add-note" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
@@ -765,10 +847,11 @@
 
           <!-- Message Body -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">
-              ข้อความ / รายละเอียดคำสั่ง <span class="text-rose-500">*</span>
+            <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+              <span>ข้อความ / รายละเอียดคำสั่ง</span>
+              <span class="text-[11px] font-normal text-slate-400">(ไม่บังคับกรอก)</span>
             </label>
-            <textarea id="note-input-body" rows="4" required placeholder="ระบุรายละเอียดคำสั่ง บันทึก หรือข้อความประสานงาน..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 text-sm outline-none"></textarea>
+            <textarea id="note-input-body" rows="4" placeholder="ระบุรายละเอียดคำสั่ง บันทึก หรือข้อความประสานงาน (ถ้ามี)..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 text-sm outline-none"></textarea>
           </div>
 
           <!-- Submit Buttons -->
@@ -776,7 +859,7 @@
             <button type="button" id="btn-cancel-add-note" class="px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
               ยกเลิก
             </button>
-            <button type="submit" class="px-6 py-2.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 shadow-md shadow-pink-600/30 transition-all flex items-center gap-1.5">
+            <button type="submit" id="btn-submit-note" class="px-6 py-2.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 shadow-md shadow-pink-600/30 transition-all flex items-center gap-1.5 cursor-pointer">
               <i class="fa-solid fa-paper-plane"></i> บันทึกโน้ตลงแกลเลอรี่
             </button>
           </div>
@@ -796,12 +879,24 @@
   <div id="modal-lightbox" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-md p-4 flex items-center justify-center select-none">
     <div class="relative max-w-4xl max-h-[92vh] flex flex-col items-center w-full">
       
-      <!-- Top Bar: Counter & Close Button -->
+      <!-- Top Bar: Counter, Download Actions, and Close Button -->
       <div class="w-full flex items-center justify-between text-white pb-3 px-2">
-        <span id="lightbox-counter" class="text-xs font-semibold px-3 py-1 rounded-full bg-white/20 backdrop-blur-md">1 / 1</span>
-        <button id="btn-close-lightbox" class="text-white text-2xl hover:text-pink-400 transition-colors cursor-pointer">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <span id="lightbox-counter" class="text-xs font-semibold px-3 py-1 rounded-full bg-white/20 backdrop-blur-md">1 / 1</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-download-lightbox" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-pink-600 text-white text-xs font-semibold backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95" title="ดาวน์โหลดรูปที่กำลังเปิดอยู่นี้">
+            <i class="fa-solid fa-download"></i>
+            <span>ดาวน์โหลดรูปนี้</span>
+          </button>
+          <button id="btn-download-all-lightbox" type="button" class="hidden inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-sky-600 text-white text-xs font-semibold backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95" title="ดาวน์โหลดรูปภาพทั้งหมดในโพสต์นี้">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+            <span>ดาวน์โหลดทุกรูป</span>
+          </button>
+          <button id="btn-close-lightbox" class="text-white text-2xl hover:text-pink-400 transition-colors cursor-pointer ml-1 p-1" title="ปิดหน้าต่าง">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Main Image Display with Floating Navigation Arrows -->
@@ -820,6 +915,134 @@
       <div class="mt-3 text-center w-full">
         <div id="lightbox-caption" class="text-xs sm:text-sm text-slate-200 font-semibold truncate max-w-xl mx-auto"></div>
         <div id="lightbox-dots" class="flex items-center justify-center gap-1.5 mt-2 flex-wrap max-w-md mx-auto"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- MODAL: บันทึก / แก้ไขหนังสือราชการ (Word & PDF)             -->
+  <!-- ========================================================= -->
+  <div id="modal-doc" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/80 backdrop-blur-sm p-4 sm:p-6">
+    <div class="min-h-full flex items-center justify-center">
+      <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-950 text-white px-6 py-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/20 flex items-center justify-center text-white text-lg">
+              <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <div>
+              <h3 id="modal-doc-title" class="text-lg font-bold text-white flex items-center gap-2">
+                + บันทึกหนังสือราชการ
+              </h3>
+              <p id="modal-doc-subtitle" class="text-xs text-indigo-100">
+                กรอกรายละเอียดและอัปโหลดเอกสาร Word (.docx) หรือ PDF
+              </p>
+            </div>
+          </div>
+          <button type="button" id="btn-close-modal-doc" onclick="closeDocModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer" title="ปิดหน้าต่าง">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form id="form-doc" class="p-6 space-y-4">
+
+          <!-- Row 1: Document Number & Date -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                เลขที่หนังสือราชการ <span class="text-xs font-normal text-slate-400">(ถ้ามี)</span>
+              </label>
+              <input type="text" id="doc-input-number" placeholder="เช่น บก ๐๐๓๗/ว ๑๒๓๔" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-sm outline-none font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                ลงวันที่ <span class="text-rose-500">*</span>
+              </label>
+              <input type="date" id="doc-input-date" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-sm outline-none">
+            </div>
+          </div>
+
+          <!-- Row 2: Title / Subject -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              ชื่อเรื่องหนังสือราชการ <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" id="doc-input-title" required placeholder="เช่น คำสั่งแต่งตั้งเวรปฏิบัติการ ศรส. ประจำเดือน..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-sm outline-none">
+          </div>
+
+          <!-- Row 3: Issuer / Department -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              หน่วยงานเจ้าของเรื่อง / ผู้ส่ง
+            </label>
+            <input type="text" id="doc-input-issuer" placeholder="เช่น สนง.พมจ.บึงกาฬ, ศรส.พม., ศูนย์คุ้มครองคนไร้ที่พึ่งฯ" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-sm outline-none">
+          </div>
+
+          <!-- Row 4: File Upload (Word / PDF) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> แนบเอกสารไฟล์ Word (.doc, .docx) หรือ PDF
+              </span>
+              <span class="text-[11px] font-normal text-slate-400">ขนาดไฟล์ไม่เกิน 15MB</span>
+            </label>
+
+            <!-- File Selector Area -->
+            <div class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 rounded-2xl p-4 transition-all text-center">
+              <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="hidden">
+              <label for="doc-file-input" class="cursor-pointer flex flex-col items-center justify-center gap-2">
+                <div class="w-12 h-12 rounded-2xl bg-white shadow-sm border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+                  <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+                <div>
+                  <span class="text-xs font-bold text-indigo-700 hover:text-indigo-800">คลิกเลือกไฟล์ Word หรือ PDF จากเครื่อง</span>
+                  <p class="text-[11px] text-slate-500 mt-0.5">รองรับไฟล์นามสกุล .pdf, .doc, .docx</p>
+                </div>
+              </label>
+
+              <!-- Selected File Preview Pill -->
+              <div id="doc-file-preview-pill" class="hidden mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-slate-800 shadow-sm max-w-full">
+                <i id="doc-file-icon" class="fa-solid fa-file-pdf text-rose-500 text-sm"></i>
+                <span id="doc-file-name" class="truncate max-w-xs text-xs">filename.pdf</span>
+                <span id="doc-file-size" class="text-[10px] text-slate-400 font-mono">1.2 MB</span>
+                <button type="button" id="btn-remove-doc-file" onclick="removeAttachedDocFile()" class="w-5 h-5 rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-400 text-[10px] ml-1 transition-colors cursor-pointer" title="ลบไฟล์ออก">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alternative Online URL -->
+            <div class="mt-2.5">
+              <input type="url" id="doc-input-url" placeholder="หรือวางลิงก์ไฟล์เอกสารภายนอก (Google Drive, เว็บกระทรวง ฯลฯ)..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-indigo-500 text-xs outline-none">
+            </div>
+          </div>
+
+          <!-- Row 5: Summary / Remarks (Optional) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+              <span>สาระสำคัญ / รายละเอียดเพิ่มเติม</span>
+              <span class="text-[11px] font-normal text-slate-400">(ไม่บังคับกรอก)</span>
+            </label>
+            <textarea id="doc-input-summary" rows="3" placeholder="ระบุสาระสำคัญ ข้อสั่งการ หรือหมายเหตุโดยย่อ..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-sm outline-none"></textarea>
+          </div>
+
+          <!-- Buttons -->
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <button type="button" id="btn-cancel-doc" onclick="closeDocModal()" class="px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer">
+              ยกเลิก
+            </button>
+            <button type="submit" id="btn-submit-doc" class="px-6 py-2.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 shadow-md shadow-indigo-600/30 transition-all flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>บันทึกหนังสือราชการ</span>
+            </button>
+          </div>
+
+        </form>
+
       </div>
     </div>
   </div>
@@ -1198,7 +1421,7 @@ function doPost(e) {
       for (var j = 0; j < items.length; j++) {
         var n = items[j];
         if (!n || !n.title) continue;
-        if (existingIds[String(n.id)] || existingTitles[String(n.title).trim()]) continue;
+        var rNum = existingIds[String(n.id)] || existingTitles[String(n.title).trim()];
 
         var imgStr = String(n.image || "");
         var chunks = [];
@@ -1214,7 +1437,11 @@ function doPost(e) {
           String(n.body || "")
         ].concat(chunks);
 
-        sheetNotes.appendRow(rowData);
+        if (rNum) {
+          sheetNotes.getRange(rNum, 1, 1, rowData.length).setValues([rowData]);
+        } else {
+          sheetNotes.appendRow(rowData);
+        }
       }
       return ContentService.createTextOutput(JSON.stringify({ status: "ok" })).setMimeType(ContentService.MimeType.JSON);
     }
@@ -1779,6 +2006,9 @@ function doPost(e) {
           imageHtml = `
             <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100 cursor-pointer group/img" onclick="openNoteLightbox(${note.id}, 0)">
               <img src="${images[0]}" alt="${escapeHtml(note.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105">
+              <button type="button" onclick="event.stopPropagation(); downloadSingleImage('${images[0]}', '${escapeHtml(note.title).replace(/[\/:*?\"<>|]/g, '_')}_1.jpg')" class="absolute top-2.5 left-2.5 bg-slate-900/80 hover:bg-sky-600 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md transition-colors z-10 cursor-pointer" title="ดาวน์โหลดรูปภาพนี้">
+                <i class="fa-solid fa-download"></i> โหลดรูป
+              </button>
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-semibold gap-1.5">
                 <i class="fa-solid fa-magnifying-glass-plus"></i> คลิกเพื่อดูภาพขยาย
               </div>
@@ -1801,6 +2031,9 @@ function doPost(e) {
             <div class="relative bg-slate-900 overflow-hidden cursor-pointer group/img" onclick="openNoteLightbox(${note.id}, 0)">
               <div class="relative h-44 sm:h-48 w-full overflow-hidden">
                 <img src="${images[0]}" alt="${escapeHtml(note.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105">
+                <button type="button" onclick="event.stopPropagation(); downloadNoteImages(${note.id})" class="absolute top-2.5 left-2.5 bg-slate-900/80 hover:bg-sky-600 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md transition-colors z-10 cursor-pointer" title="ดาวน์โหลดรูปภาพทั้งหมด (${images.length} รูป)">
+                  <i class="fa-solid fa-download"></i> โหลดรูป (${images.length})
+                </button>
                 <div class="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md">
                   <i class="fa-solid fa-images text-pink-400"></i> ${images.length} รูปภาพ
                 </div>
@@ -1834,16 +2067,29 @@ function doPost(e) {
                 <div class="text-xs text-slate-500 flex items-center gap-1.5 mb-3">
                   <i class="fa-solid fa-user-pen text-slate-400"></i> ${note.author || 'เจ้าหน้าที่ One Home'}
                 </div>
+                ${note.body ? `
                 <p class="text-xs text-slate-600 leading-relaxed line-clamp-4">
                   ${note.body}
-                </p>
+                </p>` : ''}
               </div>
             </div>
             <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
               <span class="text-slate-400 text-[11px]">บันทึกในระบบกลาง ONE HOME</span>
-              <button onclick="deleteNote(${note.id})" class="text-slate-400 hover:text-rose-600 transition-colors p-1" title="ลบโน้ตนี้">
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
+              <div class="flex items-center gap-1.5">
+                ${images.length > 0 ? `
+                <button type="button" onclick="downloadNoteImages(${note.id})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="ดาวน์โหลดรูปภาพทั้งหมด (${images.length} รูป)">
+                  <i class="fa-solid fa-download text-sky-600"></i>
+                  <span>โหลดรูป (${images.length})</span>
+                </button>
+                ` : ''}
+                <button type="button" onclick="editNote(${note.id})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 shadow-sm transition-all hover:scale-105 cursor-pointer" title="แก้ไขโน้ตนี้">
+                  <i class="fa-regular fa-pen-to-square text-amber-600"></i>
+                  <span>แก้ไข</span>
+                </button>
+                <button type="button" onclick="deleteNote(${note.id})" class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer" title="ลบโน้ตนี้">
+                  <i class="fa-regular fa-trash-can text-xs"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -1855,6 +2101,73 @@ function doPost(e) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+
+
+    // Download Image Helpers
+    window.downloadSingleImage = function(src, filename) {
+      if (!src) return;
+      filename = filename || 'one_home_image.jpg';
+      if (src.startsWith('data:')) {
+        const a = document.createElement('a');
+        a.href = src;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('ดาวน์โหลดรูปภาพเรียบร้อยแล้ว', 'success');
+        return;
+      }
+      fetch(src)
+        .then(r => {
+          if (!r.ok) throw new Error('Network error');
+          return r.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+          showToast('ดาวน์โหลดรูปภาพเรียบร้อยแล้ว', 'success');
+        })
+        .catch(() => {
+          const a = document.createElement('a');
+          a.href = src;
+          a.target = '_blank';
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast('เปิดรูปภาพเพื่อดาวน์โหลด', 'info');
+        });
+    };
+
+    window.downloadNoteImages = async function(noteId) {
+      const note = notesData.find(n => String(n.id) === String(noteId));
+      if (!note) {
+        showToast('ไม่พบข้อมูลรูปภาพ', 'error');
+        return;
+      }
+      const imgs = getNoteImages(note);
+      if (imgs.length === 0) {
+        showToast('โพสต์นี้ไม่มีรูปภาพแนบ', 'info');
+        return;
+      }
+
+      showToast(`กำลังเริ่มดาวน์โหลดรูปภาพ (${imgs.length} รูป)...`, 'info');
+      const cleanTitle = (note.title || 'image').replace(/[\\/:*?"<>|]/g, '_').substring(0, 30);
+
+      for (let i = 0; i < imgs.length; i++) {
+        const fname = `${cleanTitle}_รูปที่_${i + 1}.jpg`;
+        window.downloadSingleImage(imgs[i], fname);
+        if (imgs.length > 1 && i < imgs.length - 1) {
+          await new Promise(r => setTimeout(r, 450));
+        }
+      }
+    };
 
     // Global Modal Functions
     window.openVolunteerModal = function() {
@@ -1890,6 +2203,9 @@ function doPost(e) {
       }
     };
     window.openAddNoteModal = function() {
+      if (typeof window.resetNoteFormToAddMode === 'function') {
+        window.resetNoteFormToAddMode();
+      }
       const m = document.getElementById('modal-add-note');
       if (m) {
         m.classList.remove('hidden');
@@ -1919,12 +2235,339 @@ function doPost(e) {
     };
 
     // Event Handlers Setup
+
+    // =========================================================
+    // SECTION 3: Official Documents (หนังสือราชการ) Logic
+    // =========================================================
+    const defaultInitialDocs = [
+      {
+        id: 1730381000001,
+        docNumber: "บก ๐๐๓๗/ว ๒๔๕๑",
+        title: "คำสั่งแต่งตั้งคณะทำงานศูนย์เร่งรัดจัดการสวัสดิภาพประชาชน (ศรส.) จังหวัดบึงกาฬ",
+        date: "2026-11-04",
+        issuer: "สำนักงานพัฒนาสังคมและความมั่นคงของมนุษย์จังหวัดบึงกาฬ",
+        summary: "แต่งตั้งเจ้าหน้าที่และข้าราชการเป็นเวรปฏิบัติการช่วยเหลือผู้ประสบปัญหาทางสังคมตลอด 24 ชั่วโมง",
+        fileType: "pdf",
+        fileName: "คำสั่งแต่งตั้งเวร_ศรส_พฤศจิกายน_2569.pdf",
+        fileSize: "420 KB",
+        fileData: "data:application/pdf;base64,JVBERi0xLjQKJcfsj6IKMSAwIG9iago8PAovVGl0bGUgKP7/AEMAcgBlAGEAdABlAGQAIAB3AGkAdABoACAARwBlAG0AaQBuAGkAKQovUHJvZHVjZXIgKP7/AHEAdAAgADUALgAxADUALgAyKQovQ3JlYXRpb25EYXRlIChEOjIwMjYxMTA0MDAwMDAwWjApCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9DYXRhbG9nCi9QYWdlcyAzIDAgUgo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZXMKL0tpZHMgWzQgMCBSXQovQ291bnQgMQo+PgplbmRvYmoKNCAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDMgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCi9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKNSAwIG9iago8PAovTGVuZ3RoIDY5Cj4+CnN0cmVhbQpCVCAvRjEgMTIgVGYgNzIgNzcwIFRkICjguITguLPguKrguLHguYjguIcucGRmKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCnRyYWlsZXIKPDwKL1Jvb3QgMiAwIFIKL0luZm8gMSAwIFIKL1NpemUgNgo+PgpzdGFydHhyZWYKNTAwCiUlRU9G"
+      },
+      {
+        id: 1730381000002,
+        docNumber: "บก ๐๐๓๗/ว ๑๘๙๐",
+        title: "ขอความอนุเคราะห์รายงานผลการปฏิบัติงานอาสาสมัครพัฒนาสังคมและความมั่นคงของมนุษย์ (อพม.)",
+        date: "2026-10-28",
+        issuer: "กลุ่มการพัฒนาสังคมและสวัสดิการ",
+        summary: "แบบฟอร์มรายงานผลงาน อพม. ประจำปีงบประมาณ ๒๕๖๙ ส่งกลับภายในวันที่ ๑๕ ของทุกเดือน",
+        fileType: "word",
+        fileName: "แบบฟอร์มรายงานผลงาน_อพม.docx",
+        fileSize: "68 KB",
+        fileData: "data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,UEsDBBQABgAIAAAAIQA="
+      },
+      {
+        id: 1730381000003,
+        docNumber: "พม ๐๒๐๑/ว ๓๓๑๒",
+        title: "แนวทางการขับเคลื่อนโครงการบูรณาการ ONE HOME กระทรวง พม. ประจำปีงบประมาณ ๒๕๗๐",
+        date: "2026-10-15",
+        issuer: "สำนักงานปลัดกระทรวงการพัฒนาสังคมและความมั่นคงของมนุษย์",
+        summary: "กรอบทิศทางการทำงานร่วมกันระหว่างหน่วยงานในสังกัด พม. เพื่อเสริมสร้างคุณภาพชีวิตประชาชน",
+        fileType: "pdf",
+        fileName: "แนวทางการขับเคลื่อน_ONE_HOME_2570.pdf",
+        fileSize: "850 KB",
+        fileData: "data:application/pdf;base64,JVBERi0xLjQKJcfsj6IKMSAwIG9iago8PAovVGl0bGUgKP7/AEMAcgBlAGEAdABlAGQAIAB3AGkAdABoACAARwBlAG0AaQBuAGkAKQovUHJvZHVjZXIgKP7/AHEAdAAgADUALgAxADUALgAyKQovQ3JlYXRpb25EYXRlIChEOjIwMjYxMTA0MDAwMDAwWjApCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9UeXBlIC9DYXRhbG9nCi9QYWdlcyAzIDAgUgo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZXMKL0tpZHMgWzQgMCBSXQovQ291bnQgMQo+PgplbmRvYmoKNCAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDMgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCi9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKNSAwIG9iago8PAovTGVuZ3RoIDY5Cj4+CnN0cmVhbQpCVCAvRjEgMTIgVGYgNzIgNzcwIFRkICjguITguLPguKrguLHguYjguIcucGRmKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCnRyYWlsZXIKPDwKL1Jvb3QgMiAwIFIKL0luZm8gMSAwIFIKL1NpemUgNgo+PgpzdGFydHhyZWYKNTAwCiUlRU9G"
+      }
+    ];
+
+    let officialDocsData = [];
+    try {
+      const savedDocs = localStorage.getItem("one_home_official_docs_v1");
+      if (savedDocs) {
+        officialDocsData = JSON.parse(savedDocs);
+      } else {
+        officialDocsData = defaultInitialDocs.slice();
+        localStorage.setItem("one_home_official_docs_v1", JSON.stringify(officialDocsData));
+      }
+    } catch (e) {
+      officialDocsData = defaultInitialDocs.slice();
+    }
+
+    let editingDocId = null;
+    let currentAttachedDoc = null;
+
+    function formatDocDate(dateStr) {
+      if (!dateStr) return "-";
+      const parts = dateStr.split("-");
+      if (parts.length === 3) {
+        const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        const y = parseInt(parts[0], 10);
+        const thaiY = y > 2400 ? y : y + 543;
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        return `${d} ${thaiMonths[m] || ""} ${thaiY}`;
+      }
+      return dateStr;
+    }
+
+    function renderOfficialDocs() {
+      const container = document.getElementById("docs-horizontal-list");
+      const emptyState = document.getElementById("docs-empty-state");
+      const badgeTotal = document.getElementById("doc-total-badge");
+      if (!container) return;
+
+      const searchInput = document.getElementById("doc-search-input");
+      const filterType = document.getElementById("doc-filter-type");
+
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+      const selectedType = filterType ? filterType.value : "ALL";
+
+      let filtered = officialDocsData.filter(d => {
+        if (selectedType !== "ALL") {
+          if (selectedType === "pdf" && d.fileType !== "pdf") return false;
+          if (selectedType === "word" && d.fileType !== "word") return false;
+        }
+        if (query) {
+          const matchNum = d.docNumber && d.docNumber.toLowerCase().includes(query);
+          const matchTitle = d.title && d.title.toLowerCase().includes(query);
+          const matchIssuer = d.issuer && d.issuer.toLowerCase().includes(query);
+          const matchSummary = d.summary && d.summary.toLowerCase().includes(query);
+          if (!matchNum && !matchTitle && !matchIssuer && !matchSummary) return false;
+        }
+        return true;
+      });
+
+      // Sort by date descending
+      filtered.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+
+      if (badgeTotal) {
+        badgeTotal.textContent = `${filtered.length} รายการ`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = "";
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add("hidden");
+
+      container.innerHTML = filtered.map(doc => {
+        const isPdf = doc.fileType === "pdf" || (doc.fileName && doc.fileName.toLowerCase().endsWith(".pdf"));
+        const isWord = doc.fileType === "word" || (doc.fileName && (doc.fileName.toLowerCase().endsWith(".docx") || doc.fileName.toLowerCase().endsWith(".doc")));
+
+        return `
+          <div class="group bg-white hover:bg-indigo-50/20 rounded-2xl border border-slate-200 hover:border-indigo-300 p-4 sm:p-5 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col lg:grid" style="grid-template-columns: 85px 150px 1fr 180px 190px 110px; gap: 1.25rem; align-items: center; width: 100%;">
+            
+            <!-- Col 1: Type Badge (85px, centered) -->
+            <div class="flex items-center gap-2 mb-2 lg:mb-0 lg:justify-center">
+              ${isPdf ? `
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold shadow-xs">
+                  <i class="fa-solid fa-file-pdf text-rose-600 text-sm"></i> PDF
+                </span>
+              ` : isWord ? `
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold shadow-xs">
+                  <i class="fa-solid fa-file-word text-blue-600 text-sm"></i> Word
+                </span>
+              ` : `
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
+                  <i class="fa-solid fa-file-lines text-slate-500 text-sm"></i> เอกสาร
+                </span>
+              `}
+            </div>
+
+            <!-- Col 2: Number & Date (150px) -->
+            <div class="mb-2 lg:mb-0">
+              <div class="text-xs font-bold text-slate-900 font-mono tracking-tight flex items-center gap-1">
+                <i class="fa-solid fa-hashtag text-[10px] text-slate-400"></i> ${escapeHtml(doc.docNumber || "-")}
+              </div>
+              <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
+                <i class="fa-regular fa-calendar text-[10px] text-slate-400"></i> ${formatDocDate(doc.date)}
+              </div>
+            </div>
+
+            <!-- Col 3: Title & Summary (1fr - Fills all available width!) -->
+            <div class="mb-2 lg:mb-0 min-w-0">
+              <h3 class="text-sm font-bold text-slate-900 group-hover:text-indigo-700 transition-colors leading-snug">
+                ${escapeHtml(doc.title)}
+              </h3>
+              ${doc.summary ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">${escapeHtml(doc.summary)}</p>` : ""}
+            </div>
+
+            <!-- Col 4: Issuer / Unit (180px) -->
+            <div class="text-xs text-slate-600 mb-2 lg:mb-0 flex items-center gap-1.5 min-w-0">
+              <i class="fa-solid fa-building-columns text-slate-400 text-xs shrink-0"></i>
+              <span class="truncate">${escapeHtml(doc.issuer || "สนง.พมจ.บึงกาฬ")}</span>
+            </div>
+
+            <!-- Col 5: Attached File & Download (190px, centered) -->
+            <div class="mb-3 lg:mb-0 flex items-center justify-start lg:justify-center gap-1.5">
+              ${doc.fileData ? `
+                <button type="button" onclick="downloadOfficialDoc(${doc.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-xs transition-all hover:scale-105 cursor-pointer max-w-full" title="คลิกเพื่อดาวน์โหลดไฟล์ ${escapeHtml(doc.fileName || '')}">
+                  <i class="fa-solid fa-download text-indigo-600 shrink-0"></i>
+                  <span class="truncate max-w-[130px] text-[11px]">${escapeHtml(doc.fileName || (isPdf ? 'เอกสาร.pdf' : 'เอกสาร.docx'))}</span>
+                </button>
+              ` : doc.fileUrl ? `
+                <a href="${escapeHtml(doc.fileUrl)}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-semibold shadow-xs transition-all hover:scale-105" title="เปิดลิงก์เอกสาร">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-sky-600 shrink-0"></i>
+                  <span class="truncate max-w-[130px] text-[11px]">เปิดเอกสารออนไลน์</span>
+                </a>
+              ` : `
+                <span class="text-xs text-slate-400 italic">ไม่มีไฟล์แนบ</span>
+              `}
+            </div>
+
+            <!-- Col 6: Actions (110px, right-aligned) -->
+            <div class="flex items-center justify-end gap-1.5 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+              <button type="button" onclick="editOfficialDoc(${doc.id})" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-xs transition-all hover:scale-105 cursor-pointer" title="แก้ไขข้อมูลหนังสือนี้">
+                <i class="fa-regular fa-pen-to-square text-amber-600"></i>
+                <span class="text-[11px]">แก้ไข</span>
+              </button>
+              <button type="button" onclick="deleteOfficialDoc(${doc.id})" class="inline-flex items-center justify-center w-8 h-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer" title="ลบหนังสือนี้">
+                <i class="fa-regular fa-trash-can text-xs"></i>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.openAddDocModal = function() {
+      editingDocId = null;
+      currentAttachedDoc = null;
+      const form = document.getElementById("form-doc");
+      if (form && typeof form.reset === "function") form.reset();
+
+      const numEl = document.getElementById("doc-input-number"); if (numEl) numEl.value = "";
+      const titleEl = document.getElementById("doc-input-title"); if (titleEl) titleEl.value = "";
+      const issuerEl = document.getElementById("doc-input-issuer"); if (issuerEl) issuerEl.value = "";
+      const summaryEl = document.getElementById("doc-input-summary"); if (summaryEl) summaryEl.value = "";
+      const urlEl = document.getElementById("doc-input-url"); if (urlEl) urlEl.value = "";
+
+      const todayStr = new Date().toISOString().split("T")[0];
+      const dInput = document.getElementById("doc-input-date");
+      if (dInput) dInput.value = todayStr;
+
+      const modalTitle = document.getElementById("modal-doc-title");
+      const modalSub = document.getElementById("modal-doc-subtitle");
+      const submitBtn = document.getElementById("btn-submit-doc");
+      if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-file-contract text-indigo-200"></i> + บันทึกหนังสือราชการ';
+      if (modalSub) modalSub.textContent = "กรอกรายละเอียดและอัปโหลดเอกสาร Word (.docx) หรือ PDF";
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกหนังสือราชการ';
+
+      const previewPill = document.getElementById("doc-file-preview-pill");
+      if (previewPill) previewPill.classList.add("hidden");
+
+      const modal = document.getElementById("modal-doc");
+      if (modal) {
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      }
+    };
+
+    window.closeDocModal = function() {
+      const modal = document.getElementById("modal-doc");
+      if (modal) {
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      }
+    };
+
+    window.removeAttachedDocFile = function() {
+      currentAttachedDoc = null;
+      const fileInput = document.getElementById("doc-file-input");
+      if (fileInput) fileInput.value = "";
+      const previewPill = document.getElementById("doc-file-preview-pill");
+      if (previewPill) previewPill.classList.add("hidden");
+    };
+
+    window.editOfficialDoc = function(id) {
+      const doc = officialDocsData.find(d => String(d.id) === String(id));
+      if (!doc) {
+        showToast("ไม่พบข้อมูลหนังสือราชการที่ต้องการแก้ไข", "error");
+        return;
+      }
+      editingDocId = doc.id;
+
+      document.getElementById("doc-input-number").value = doc.docNumber || "";
+      document.getElementById("doc-input-title").value = doc.title || "";
+      document.getElementById("doc-input-date").value = doc.date || "";
+      document.getElementById("doc-input-issuer").value = doc.issuer || "";
+      document.getElementById("doc-input-summary").value = doc.summary || "";
+      document.getElementById("doc-input-url").value = doc.fileUrl || "";
+
+      const modalTitle = document.getElementById("modal-doc-title");
+      const modalSub = document.getElementById("modal-doc-subtitle");
+      const submitBtn = document.getElementById("btn-submit-doc");
+      if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-300"></i> แก้ไขหนังสือราชการ';
+      if (modalSub) modalSub.textContent = "แก้ไขรายละเอียดหนังสือราชการและปรับปรุงไฟล์เอกสาร";
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข';
+
+      currentAttachedDoc = doc.fileData ? {
+        dataUrl: doc.fileData,
+        name: doc.fileName || (doc.fileType === "pdf" ? "เอกสาร.pdf" : "เอกสาร.docx"),
+        size: doc.fileSize || "",
+        type: doc.fileType || "pdf"
+      } : null;
+
+      const previewPill = document.getElementById("doc-file-preview-pill");
+      if (currentAttachedDoc) {
+        if (previewPill) {
+          previewPill.classList.remove("hidden");
+          const iconEl = document.getElementById("doc-file-icon");
+          const nameEl = document.getElementById("doc-file-name");
+          const sizeEl = document.getElementById("doc-file-size");
+          if (iconEl) {
+            iconEl.className = currentAttachedDoc.type === "word" ? "fa-solid fa-file-word text-blue-500 text-sm" : "fa-solid fa-file-pdf text-rose-500 text-sm";
+          }
+          if (nameEl) nameEl.textContent = currentAttachedDoc.name;
+          if (sizeEl) sizeEl.textContent = currentAttachedDoc.size || "";
+        }
+      } else {
+        if (previewPill) previewPill.classList.add("hidden");
+      }
+
+      const modal = document.getElementById("modal-doc");
+      if (modal) {
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      }
+    };
+
+    window.deleteOfficialDoc = function(id) {
+      officialDocsData = officialDocsData.filter(d => String(d.id) !== String(id));
+      try {
+        localStorage.setItem("one_home_official_docs_v1", JSON.stringify(officialDocsData));
+      } catch (e) {}
+      renderOfficialDocs();
+      showToast("ลบหนังสือราชการเรียบร้อยแล้ว", "info");
+    };
+
+    window.downloadOfficialDoc = function(id) {
+      const doc = officialDocsData.find(d => String(d.id) === String(id));
+      if (!doc) {
+        showToast("ไม่พบข้อมูลหนังสือราชการ", "error");
+        return;
+      }
+      if (doc.fileData) {
+        const isPdf = doc.fileType === "pdf" || (doc.fileName && doc.fileName.toLowerCase().endsWith(".pdf"));
+        const fallbackName = `${(doc.title || "เอกสารราชการ").replace(/[\\/:*?"<>|]/g, "_")}${isPdf ? ".pdf" : ".docx"}`;
+        const fname = doc.fileName || fallbackName;
+        window.downloadSingleImage(doc.fileData, fname);
+      } else if (doc.fileUrl) {
+        window.open(doc.fileUrl, "_blank");
+        showToast("เปิดเอกสารออนไลน์", "info");
+      } else {
+        showToast("รายการนี้ไม่มีไฟล์แนบ", "info");
+      }
+    };
+
     function initApp() {
       initializeDropdowns();
       updateSearchUI();
       renderVolunteerTable();
       renderSmartTable();
       renderGalleryNotes();
+      renderOfficialDocs();
 
       const todayStr = new Date().toISOString().split('T')[0];
       const dateInput = document.getElementById('note-input-date');
@@ -2298,6 +2941,58 @@ function doPost(e) {
         });
       }
 
+      let editingNoteId = null;
+
+      window.resetNoteFormToAddMode = function() {
+        editingNoteId = null;
+        const form = document.getElementById('form-add-note');
+        if (form && typeof form.reset === 'function') form.reset();
+        const tEl = document.getElementById('note-input-title'); if (tEl) tEl.value = '';
+        const cEl = document.getElementById('note-input-category'); if (cEl) cEl.value = 'คำสั่งราชการ';
+        const aEl = document.getElementById('note-input-author'); if (aEl) aEl.value = '';
+        const bEl = document.getElementById('note-input-body'); if (bEl) bEl.value = '';
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dInput = document.getElementById('note-input-date');
+        if (dInput) dInput.value = todayStr;
+        const modalTitle = document.getElementById('modal-add-note-title');
+        const modalSub = document.getElementById('modal-add-note-subtitle');
+        const submitBtn = document.getElementById('btn-submit-note');
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-note-sticky text-pink-200"></i> + เพิ่มโน้ต / คำสั่ง';
+        if (modalSub) modalSub.textContent = 'ทุกคนที่เข้าเว็บไซต์สามารถสร้างและบันทึกโพสต์ใหม่ได้';
+        if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> บันทึกโน้ตลงแกลเลอรี่';
+        currentAttachedImages = [];
+        updateThumbnailsUI();
+      };
+
+      window.editNote = function(id) {
+        const note = notesData.find(n => String(n.id) === String(id));
+        if (!note) {
+          showToast('ไม่พบข้อมูลโน้ตที่ต้องการแก้ไข', 'error');
+          return;
+        }
+        editingNoteId = note.id;
+
+        document.getElementById('note-input-title').value = note.title || '';
+        document.getElementById('note-input-category').value = note.category || 'คำสั่งราชการ';
+        document.getElementById('note-input-date').value = note.date || '';
+        document.getElementById('note-input-author').value = note.author || '';
+        document.getElementById('note-input-body').value = note.body || '';
+
+        const modalTitle = document.getElementById('modal-add-note-title');
+        const modalSub = document.getElementById('modal-add-note-subtitle');
+        const submitBtn = document.getElementById('btn-submit-note');
+
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-300"></i> แก้ไขโน้ต / คำสั่ง';
+        if (modalSub) modalSub.textContent = 'แก้ไขรายละเอียดและบันทึกการเปลี่ยนแปลงลงระบบ';
+        if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข';
+
+        currentAttachedImages = getNoteImages(note).slice();
+        updateThumbnailsUI();
+
+        modalAddNote.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      };
+
       document.getElementById('form-add-note').addEventListener('submit', async function(e) {
         e.preventDefault();
         const title = document.getElementById('note-input-title').value.trim();
@@ -2306,7 +3001,41 @@ function doPost(e) {
         const author = document.getElementById('note-input-author').value.trim() || 'ผู้ใช้งาน One Home';
         const body = document.getElementById('note-input-body').value.trim();
 
-        if (!title || !body) return;
+        if (!title) return;
+
+        if (editingNoteId) {
+          const targetIndex = notesData.findIndex(n => String(n.id) === String(editingNoteId));
+          if (targetIndex !== -1) {
+            const updatedNote = {
+              ...notesData[targetIndex],
+              title,
+              category,
+              date,
+              author,
+              image: currentAttachedImages[0] || '',
+              images: currentAttachedImages.slice(),
+              body,
+              updatedAt: new Date().toISOString()
+            };
+            notesData[targetIndex] = updatedNote;
+            notesData = sortNotesDescending(notesData);
+            try {
+              localStorage.setItem('one_home_clean_notes_v2', JSON.stringify(notesData));
+            } catch (err) {}
+
+            renderGalleryNotes();
+            modalAddNote.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            showToast('แก้ไขโน้ตเรียบร้อยแล้ว และกำลังซิงค์ขึ้นคลาวด์...', 'success');
+
+            const ok = await pushNotesToCloud([updatedNote]);
+            if (ok) {
+              showToast('ซิงค์ข้อมูลแก้ไขขึ้น Google Sheets สำเร็จ!', 'success');
+            }
+          }
+          window.resetNoteFormToAddMode();
+          return;
+        }
 
         const newNote = {
           id: Date.now(),
@@ -2405,6 +3134,16 @@ function doPost(e) {
         img.src = currentLightboxImages[currentLightboxIndex] || '';
         caption.textContent = currentLightboxTitle;
 
+        const btnDlAll = document.getElementById('btn-download-all-lightbox');
+        if (btnDlAll) {
+          if (total > 1) {
+            btnDlAll.classList.remove('hidden');
+            btnDlAll.title = `ดาวน์โหลดรูปภาพทั้งหมด (${total} รูป)`;
+          } else {
+            btnDlAll.classList.add('hidden');
+          }
+        }
+
         if (total > 1) {
           counter.textContent = `${currentLightboxIndex + 1} / ${total}`;
           counter.classList.remove('hidden');
@@ -2479,6 +3218,182 @@ function doPost(e) {
           if (e.key === 'ArrowLeft') prevLightboxImage();
         }
       });
+
+      // Lightbox Download Actions
+      const btnDlCurrent = document.getElementById('btn-download-lightbox');
+      if (btnDlCurrent) {
+        btnDlCurrent.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (currentLightboxImages.length > 0 && currentLightboxImages[currentLightboxIndex]) {
+            const cleanTitle = (currentLightboxTitle || 'image').replace(/[\\/:*?"<>|]/g, '_').substring(0, 30);
+            const fname = `${cleanTitle}_รูปที่_${currentLightboxIndex + 1}.jpg`;
+            window.downloadSingleImage(currentLightboxImages[currentLightboxIndex], fname);
+          }
+        });
+      }
+
+      const btnDlAllLb = document.getElementById('btn-download-all-lightbox');
+      if (btnDlAllLb) {
+        btnDlAllLb.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (currentLightboxImages.length > 0) {
+            showToast(`กำลังดาวน์โหลดรูปภาพทั้งหมด (${currentLightboxImages.length} รูป)...`, 'info');
+            const cleanTitle = (currentLightboxTitle || 'image').replace(/[\\/:*?"<>|]/g, '_').substring(0, 30);
+            for (let i = 0; i < currentLightboxImages.length; i++) {
+              const fname = `${cleanTitle}_รูปที่_${i + 1}.jpg`;
+              window.downloadSingleImage(currentLightboxImages[i], fname);
+              if (i < currentLightboxImages.length - 1) {
+                await new Promise(r => setTimeout(r, 450));
+              }
+            }
+          }
+        });
+      }
+
+
+      // Section 3: Official Docs Event Listeners
+      renderOfficialDocs();
+
+      const docSearchInput = document.getElementById("doc-search-input");
+      if (docSearchInput) {
+        docSearchInput.addEventListener("input", () => renderOfficialDocs());
+      }
+
+      const docFilterType = document.getElementById("doc-filter-type");
+      if (docFilterType) {
+        docFilterType.addEventListener("change", () => renderOfficialDocs());
+      }
+
+      const docFileInput = document.getElementById("doc-file-input");
+      if (docFileInput) {
+        docFileInput.addEventListener("change", function(e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          const fileName = file.name;
+          const isPdf = fileName.toLowerCase().endsWith(".pdf") || file.type.includes("pdf");
+          const isWord = fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx") || file.type.includes("word") || file.type.includes("officedocument");
+          const type = isWord ? "word" : (isPdf ? "pdf" : "doc");
+
+          let sizeStr = "";
+          if (file.size < 1024 * 1024) {
+            sizeStr = `${(file.size / 1024).toFixed(0)} KB`;
+          } else {
+            sizeStr = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            currentAttachedDoc = {
+              dataUrl: evt.target.result,
+              name: fileName,
+              size: sizeStr,
+              type: type
+            };
+
+            const previewPill = document.getElementById("doc-file-preview-pill");
+            const iconEl = document.getElementById("doc-file-icon");
+            const nameEl = document.getElementById("doc-file-name");
+            const sizeEl = document.getElementById("doc-file-size");
+
+            if (previewPill) previewPill.classList.remove("hidden");
+            if (iconEl) {
+              iconEl.className = type === "word" ? "fa-solid fa-file-word text-blue-500 text-sm" : "fa-solid fa-file-pdf text-rose-500 text-sm";
+            }
+            if (nameEl) nameEl.textContent = fileName;
+            if (sizeEl) sizeEl.textContent = sizeStr;
+            showToast(`เลือกไฟล์ ${fileName} เรียบร้อย`, "info");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const formDoc = document.getElementById("form-doc");
+      if (formDoc) {
+        formDoc.addEventListener("submit", function(e) {
+          e.preventDefault();
+          const docNumber = document.getElementById("doc-input-number").value.trim();
+          const title = document.getElementById("doc-input-title").value.trim();
+          const date = document.getElementById("doc-input-date").value;
+          const issuer = document.getElementById("doc-input-issuer").value.trim() || "สนง.พมจ.บึงกาฬ";
+          const summary = document.getElementById("doc-input-summary").value.trim();
+          const fileUrl = document.getElementById("doc-input-url").value.trim();
+
+          if (!title) return;
+
+          let fileType = "pdf";
+          let fileName = "";
+          let fileSize = "";
+          let fileData = "";
+
+          if (currentAttachedDoc) {
+            fileType = currentAttachedDoc.type;
+            fileName = currentAttachedDoc.name;
+            fileSize = currentAttachedDoc.size;
+            fileData = currentAttachedDoc.dataUrl;
+          } else if (fileUrl) {
+            if (fileUrl.toLowerCase().includes(".doc") || fileUrl.toLowerCase().includes(".docx")) {
+              fileType = "word";
+              fileName = "เอกสารราชการ.docx";
+            } else {
+              fileType = "pdf";
+              fileName = "เอกสารราชการ.pdf";
+            }
+          }
+
+          if (editingDocId) {
+            const targetIdx = officialDocsData.findIndex(d => String(d.id) === String(editingDocId));
+            if (targetIdx !== -1) {
+              officialDocsData[targetIdx] = {
+                ...officialDocsData[targetIdx],
+                docNumber,
+                title,
+                date,
+                issuer,
+                summary,
+                fileType: currentAttachedDoc ? fileType : (officialDocsData[targetIdx].fileType || fileType),
+                fileName: currentAttachedDoc ? fileName : (officialDocsData[targetIdx].fileName || fileName),
+                fileSize: currentAttachedDoc ? fileSize : (officialDocsData[targetIdx].fileSize || fileSize),
+                fileData: currentAttachedDoc ? fileData : (officialDocsData[targetIdx].fileData || fileData),
+                fileUrl: fileUrl || officialDocsData[targetIdx].fileUrl || "",
+                updatedAt: new Date().toISOString()
+              };
+              try {
+                localStorage.setItem("one_home_official_docs_v1", JSON.stringify(officialDocsData));
+              } catch (err) {}
+              renderOfficialDocs();
+              closeDocModal();
+              showToast("แก้ไขหนังสือราชการเรียบร้อยแล้ว", "success");
+            }
+            editingDocId = null;
+            return;
+          }
+
+          // New Doc
+          const newDoc = {
+            id: Date.now(),
+            docNumber: docNumber || "-",
+            title,
+            date,
+            issuer,
+            summary,
+            fileType,
+            fileName,
+            fileSize,
+            fileData,
+            fileUrl
+          };
+
+          officialDocsData.unshift(newDoc);
+          try {
+            localStorage.setItem("one_home_official_docs_v1", JSON.stringify(officialDocsData));
+          } catch (err) {}
+
+          renderOfficialDocs();
+          closeDocModal();
+          showToast("บันทึกหนังสือราชการใหม่เรียบร้อยแล้ว", "success");
+        });
+      }
 
       // Lightbox Close
       document.getElementById('btn-close-lightbox').addEventListener('click', () => {
