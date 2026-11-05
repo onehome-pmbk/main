@@ -2346,8 +2346,13 @@ function doPost(e) {
     let deletedDocIds = [];
     try {
       const savedDelDocs = localStorage.getItem("one_home_deleted_doc_ids");
-      if (savedDelDocs) deletedDocIds = JSON.parse(savedDelDocs);
-    } catch(e) {}
+      if (savedDelDocs) {
+        const parsed = JSON.parse(savedDelDocs);
+        if (Array.isArray(parsed)) {
+          deletedDocIds = parsed.filter(id => id && /^\d+$/.test(String(id)));
+        }
+      }
+    } catch(e) { deletedDocIds = []; }
 
     async function pushDocsToCloud(docsToPush) {
       if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("http")) return false;
@@ -2636,11 +2641,9 @@ function doPost(e) {
     };
 
     window.deleteOfficialDoc = function(id) {
-      
       const target = officialDocsData.find(d => String(d.id) === String(id));
       officialDocsData = officialDocsData.filter(d => String(d.id) !== String(id));
       deletedDocIds.push(String(id));
-      if (target && target.title) deletedDocIds.push(target.title);
       try {
         localStorage.setItem("one_home_official_docs_v1", JSON.stringify(officialDocsData));
         localStorage.setItem("one_home_deleted_doc_ids", JSON.stringify(deletedDocIds));
@@ -3715,7 +3718,7 @@ function doPost(e) {
 
         // ซิงก์หนังสือราชการแบบอัตโนมัติ (Two-way Cloud Sync สำหรับหนังสือราชการ)
         if (data && Array.isArray(data.docs)) {
-          const cloudDocs = data.docs.filter(d => d && d.title && !deletedDocIds.includes(String(d.id)) && !deletedDocIds.includes(d.title));
+          const cloudDocs = data.docs.filter(d => d && d.title && !deletedDocIds.includes(String(d.id)));
           const cloudIds = new Set(cloudDocs.map(d => String(d.id)));
           const cloudTitles = new Set(cloudDocs.map(d => d.title.trim()));
 
@@ -3723,8 +3726,7 @@ function doPost(e) {
             d && d.title &&
             !cloudIds.has(String(d.id)) &&
             !cloudTitles.has(d.title.trim()) &&
-            !deletedDocIds.includes(String(d.id)) &&
-            !deletedDocIds.includes(d.title)
+            !deletedDocIds.includes(String(d.id))
           );
 
           if (localDocsOnly.length > 0) {
