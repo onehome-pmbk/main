@@ -1322,18 +1322,29 @@ function getOrCreateDocsSheet(ss) {
 }
 
 function getOrCreateDocsFolder() {
-  var folderName = "เอกสารแนบ_หนังสือราชการ_ONE_HOME";
-  var folders = DriveApp.getFoldersByName(folderName);
-  var folder;
-  if (folders.hasNext()) {
-    folder = folders.next();
-  } else {
-    folder = DriveApp.createFolder(folderName);
-    try {
-      folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    } catch (e) {}
+  try {
+    return DriveApp.getFolderById("1BKTaBUYdxqSQlZ9U_T-UStm7FrqtnzSh");
+  } catch(e) {
+    var folderName = "เอกสารแนบ_หนังสือราชการ_ONE_HOME";
+    var folders = DriveApp.getFoldersByName(folderName);
+    if (folders.hasNext()) return folders.next();
+    var folder = DriveApp.createFolder(folderName);
+    try { folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(err) {}
+    return folder;
   }
-  return folder;
+}
+
+function getOrCreateNotesFolder() {
+  try {
+    return DriveApp.getFolderById("128gtAGLc5JkitDMPN4aXXLSwnMctxnDM");
+  } catch(e) {
+    var folderName = "รูปภาพ_คำสั่งโน้ต_ONE_HOME";
+    var folders = DriveApp.getFoldersByName(folderName);
+    if (folders.hasNext()) return folders.next();
+    var folder = DriveApp.createFolder(folderName);
+    try { folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(err) {}
+    return folder;
+  }
 }
 
 function saveBase64ToDrive(base64Data, fileName, fileType) {
@@ -1361,6 +1372,42 @@ function saveBase64ToDrive(base64Data, fileName, fileType) {
     Logger.log("SaveToDrive error: " + err);
     return "";
   }
+}
+
+function saveImageToDrive(base64Data, noteTitle, imgIndex) {
+  if (!base64Data || typeof base64Data !== "string" || base64Data.indexOf("data:") !== 0) {
+    return base64Data || "";
+  }
+  try {
+    var folder = getOrCreateNotesFolder();
+    var commaIdx = base64Data.indexOf(",");
+    var rawBase64 = commaIdx > -1 ? base64Data.substring(commaIdx + 1) : base64Data;
+    var mimeType = "image/jpeg";
+    if (base64Data.indexOf("data:image/png") === 0) mimeType = "image/png";
+    else if (base64Data.indexOf("data:image/webp") === 0) mimeType = "image/webp";
+    
+    var ext = mimeType === "image/png" ? ".png" : (mimeType === "image/webp" ? ".webp" : ".jpg");
+    var cleanTitle = (noteTitle || "ภาพโน้ต").replace(/[\\\\/:*?"<>|]/g, "_").substring(0, 30);
+    var fileName = cleanTitle + "_ภาพที่_" + (imgIndex + 1) + ext;
+
+    var decoded = Utilities.base64Decode(rawBase64);
+    var blob = Utilities.newBlob(decoded, mimeType, fileName);
+    var file = folder.createFile(blob);
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (errShare) {}
+    return "https://lh3.googleusercontent.com/d/" + file.getId();
+  } catch (err) {
+    Logger.log("SaveImageToDrive error: " + err);
+    return base64Data;
+  }
+}
+
+function testCreateFolder() {
+  var folderDocs = getOrCreateDocsFolder();
+  var folderNotes = getOrCreateNotesFolder();
+  Logger.log("โฟลเดอร์หนังสือราชการ: " + folderDocs.getUrl());
+  Logger.log("โฟลเดอร์รูปภาพโน้ต: " + folderNotes.getUrl());
 }
 
 function getOrCreatePinSheet(ss) {
@@ -1432,16 +1479,29 @@ function doGet(e) {
     for (var i = 1; i < rowsNotes.length; i++) {
       var r = rowsNotes[i];
       if (!r[0] && !r[1]) continue;
-      var imgParts = [];
-      for (var c = 6; c < r.length; c++) {
-        if (r[c]) imgParts.push(String(r[c]));
-      }
+      
       var dateVal = r[3];
       if (dateVal instanceof Date) {
         dateVal = Utilities.formatDate(dateVal, "GMT+7", "yyyy-MM-dd");
       } else {
         dateVal = String(dateVal || "");
       }
+
+      var imgs = [];
+      for (var c = 6; c < r.length; c++) {
+        var val = String(r[c] || "").trim();
+        if (val) {
+          if (val.indexOf("|||IMAGES_SPLIT|||") > -1) {
+            var subParts = val.split("|||IMAGES_SPLIT|||");
+            for (var sp = 0; sp < subParts.length; sp++) {
+              if (subParts[sp].trim()) imgs.push(subParts[sp].trim());
+            }
+          } else {
+            imgs.push(val);
+          }
+        }
+      }
+
       notesList.push({
         id: Number(r[0]) || String(r[0]),
         title: String(r[1] || ""),
@@ -1449,7 +1509,8 @@ function doGet(e) {
         date: dateVal,
         author: String(r[4] || ""),
         body: String(r[5] || ""),
-        image: imgParts.join("")
+        image: imgs[0] || "",
+        images: imgs
       });
     }
     notesList.reverse();
@@ -1528,19 +1589,40 @@ function doPost(e) {
         if (!n || !n.title) continue;
         var rNum = existingIds[String(n.id)] || existingTitles[String(n.title).trim()];
 
-        var imgStr = String(n.image || "");
-        var chunks = [];
-        for (var k = 0; k < imgStr.length; k += 45000) {
-          chunks.push(imgStr.substring(k, k + 45000));
+        // นำรูปภาพทั้งหมดไปบันทึกเป็นไฟล์จริงใน Google Drive แล้วเก็บ Direct Link แทน
+        var rawImages = [];
+        if (n.images && Array.isArray(n.images)) {
+          rawImages = n.images;
+        } else if (n.image) {
+          rawImages = String(n.image).split("|||IMAGES_SPLIT|||");
         }
+
+        var uploadedUrls = [];
+        for (var imIdx = 0; imIdx < rawImages.length; imIdx++) {
+          var imgItem = String(rawImages[imIdx] || "").trim();
+          if (imgItem) {
+            if (imgItem.indexOf("data:") === 0) {
+              var driveImgUrl = saveImageToDrive(imgItem, n.title, imIdx);
+              uploadedUrls.push(driveImgUrl);
+            } else {
+              uploadedUrls.push(imgItem);
+            }
+          }
+        }
+
         var rowData = [
           String(n.id || new Date().getTime()),
           String(n.title || ""),
           String(n.category || "โน้ตข้อความ"),
           String(n.date || ""),
           String(n.author || ""),
-          String(n.body || "")
-        ].concat(chunks);
+          String(n.body || ""),
+          uploadedUrls[0] || "",
+          uploadedUrls[1] || "",
+          uploadedUrls[2] || "",
+          uploadedUrls[3] || "",
+          uploadedUrls[4] || ""
+        ];
 
         if (rNum) {
           sheetNotes.getRange(rNum, 1, 1, rowData.length).setValues([rowData]);
@@ -1580,7 +1662,7 @@ function doPost(e) {
         if (!d || !d.title) continue;
         var rNum = existingIds[String(d.id)] || existingTitles[String(d.title).trim()];
 
-        // หากมีการอัปโหลดไฟล์ (base64) ให้นำไปบันทึกเป็นไฟล์จริงใน Google Drive แล้วเก็บ URL แทน
+        // นำไฟล์แนบไปสร้างเป็นไฟล์จริงใน Google Drive แล้วเก็บ URL แทน
         var finalUrl = String(d.fileUrl || "");
         if (d.fileData && String(d.fileData).indexOf("data:") === 0) {
           var driveUrl = saveBase64ToDrive(d.fileData, d.fileName, d.fileType);
@@ -1646,7 +1728,8 @@ function doPost(e) {
           const compressedImgs = [];
           for (let img of imgs) {
             if (img.startsWith("data:image")) {
-              img = await compressImageDataUrl(img, 640, 0.68);
+              // ปรับความละเอียดให้คมชัดสูงระดับ Full HD (1600px, quality 0.88) เพื่อเก็บขึ้น Google Drive
+              img = await compressImageDataUrl(img, 1600, 0.88);
             }
             compressedImgs.push(img);
           }
@@ -1658,7 +1741,8 @@ function doPost(e) {
             date: n.date,
             author: n.author,
             body: n.body,
-            image: joinedImgs
+            image: joinedImgs,
+            images: compressedImgs
           });
         }
 
@@ -3637,11 +3721,9 @@ function doPost(e) {
     }
 
     window.deleteNote = function(id) {
-      
       const target = notesData.find(n => String(n.id) === String(id));
       notesData = notesData.filter(n => String(n.id) !== String(id));
       deletedNoteIds.push(String(id));
-      if (target && target.title) deletedNoteIds.push(target.title);
       try {
         localStorage.setItem('one_home_clean_notes_v2', JSON.stringify(notesData));
         localStorage.setItem('one_home_deleted_note_ids', JSON.stringify(deletedNoteIds));
@@ -3792,17 +3874,15 @@ function doPost(e) {
 
         // ซิงก์โน้ต ONE HOME แบบอัตโนมัติ (Two-way Cloud Sync)
         if (data && Array.isArray(data.notes)) {
-          const cloudNotes = data.notes.filter(n => n && n.title && !deletedNoteIds.includes(String(n.id)) && !deletedNoteIds.includes(n.title));
+          // กรองตาม ID ตัวเลขเท่านั้น ไม่กรองตามชื่อเรื่อง เพื่อไม่ให้โน้ตหาย
+          const cloudNotes = data.notes.filter(n => n && n.title && !deletedNoteIds.includes(String(n.id)));
           const cloudIds = new Set(cloudNotes.map(n => String(n.id)));
-          const cloudTitles = new Set(cloudNotes.map(n => n.title.trim()));
 
           // ค้นหาโน้ตที่อยู่ในเครื่องนี้แต่ยังไม่ได้ขึ้นคลาวด์ เพื่อส่งขึ้นคลาวด์อัตโนมัติ
           const localOnly = notesData.filter(n =>
             n && n.title &&
             !cloudIds.has(String(n.id)) &&
-            !cloudTitles.has(n.title.trim()) &&
-            !deletedNoteIds.includes(String(n.id)) &&
-            !deletedNoteIds.includes(n.title)
+            !deletedNoteIds.includes(String(n.id))
           );
 
           if (localOnly.length > 0) {
