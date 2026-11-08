@@ -1304,10 +1304,52 @@ function getOrCreateDocsSheet(ss) {
   if (!sheet) {
     try {
       sheet = ss.insertSheet(sheetName);
-      sheet.appendRow(["id", "docNumber", "title", "date", "issuer", "summary", "fileType", "fileName", "fileSize", "fileUrl", "chunk_1", "chunk_2", "chunk_3", "chunk_4", "chunk_5", "chunk_6"]);
+      sheet.appendRow(["id", "docNumber", "title", "date", "issuer", "summary", "fileType", "fileName", "fileSize", "fileUrl"]);
     } catch (e) {}
   }
   return sheet;
+}
+
+function getOrCreateDocsFolder() {
+  var folderName = "เอกสารแนบ_หนังสือราชการ_ONE_HOME";
+  var folders = DriveApp.getFoldersByName(folderName);
+  var folder;
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder(folderName);
+    try {
+      folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (e) {}
+  }
+  return folder;
+}
+
+function saveBase64ToDrive(base64Data, fileName, fileType) {
+  if (!base64Data || typeof base64Data !== "string" || base64Data.indexOf("data:") !== 0) {
+    return "";
+  }
+  try {
+    var folder = getOrCreateDocsFolder();
+    var commaIdx = base64Data.indexOf(",");
+    var rawBase64 = commaIdx > -1 ? base64Data.substring(commaIdx + 1) : base64Data;
+    var mimeType = "application/pdf";
+    if (fileType === "word" || (fileName && (fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx")))) {
+      mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else if (fileType === "pdf" || (fileName && fileName.toLowerCase().endsWith(".pdf"))) {
+      mimeType = "application/pdf";
+    }
+    var decoded = Utilities.base64Decode(rawBase64);
+    var blob = Utilities.newBlob(decoded, mimeType, fileName || "document");
+    var file = folder.createFile(blob);
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (errShare) {}
+    return file.getUrl();
+  } catch (err) {
+    Logger.log("SaveToDrive error: " + err);
+    return "";
+  }
 }
 
 function getOrCreatePinSheet(ss) {
@@ -1409,16 +1451,19 @@ function doGet(e) {
     for (var dI = 1; dI < rowsDocs.length; dI++) {
       var rD = rowsDocs[dI];
       if (!rD[0] && !rD[2]) continue;
-      var fileParts = [];
-      for (var col = 10; col < rD.length; col++) {
-        if (rD[col]) fileParts.push(String(rD[col]));
-      }
+      
       var dateDocVal = rD[3];
       if (dateDocVal instanceof Date) {
         dateDocVal = Utilities.formatDate(dateDocVal, "GMT+7", "yyyy-MM-dd");
       } else {
         dateDocVal = String(dateDocVal || "");
       }
+      
+      var fileParts = [];
+      for (var col = 10; col < rD.length; col++) {
+        if (rD[col]) fileParts.push(String(rD[col]));
+      }
+
       docsList.push({
         id: Number(rD[0]) || String(rD[0]),
         docNumber: String(rD[1] || "-"),
@@ -1450,14 +1495,14 @@ function doGet(e) {
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
+  lock.tryLock(15000);
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheetNotes = getOrCreateNotesSheet(ss);
     var payload = JSON.parse(e.postData.contents || "{}");
     var action = payload.action || "";
 
     if (action === "add_note" || action === "sync_notes") {
+      var sheetNotes = getOrCreateNotesSheet(ss);
       var items = payload.notes || (payload.note ? [payload.note] : []);
       var existingRows = sheetNotes.getDataRange().getValues();
       var existingIds = {};
@@ -1496,6 +1541,7 @@ function doPost(e) {
     }
 
     if (action === "delete_note") {
+      var sheetNotes = getOrCreateNotesSheet(ss);
       var targetId = String(payload.id || "");
       var targetTitle = String(payload.title || "").trim();
       var rows = sheetNotes.getDataRange().getValues();
@@ -1523,11 +1569,15 @@ function doPost(e) {
         if (!d || !d.title) continue;
         var rNum = existingIds[String(d.id)] || existingTitles[String(d.title).trim()];
 
-        var fileStr = String(d.fileData || "");
-        var chunks = [];
-        for (var k = 0; k < fileStr.length; k += 45000) {
-          chunks.push(fileStr.substring(k, k + 45000));
+        // หากมีการอัปโหลดไฟล์ (base64) ให้นำไปบันทึกเป็นไฟล์จริงใน Google Drive แล้วเก็บ URL แทน
+        var finalUrl = String(d.fileUrl || "");
+        if (d.fileData && String(d.fileData).indexOf("data:") === 0) {
+          var driveUrl = saveBase64ToDrive(d.fileData, d.fileName, d.fileType);
+          if (driveUrl) {
+            finalUrl = driveUrl;
+          }
         }
+
         var rowData = [
           String(d.id || new Date().getTime()),
           String(d.docNumber || "-"),
@@ -1538,8 +1588,8 @@ function doPost(e) {
           String(d.fileType || "pdf"),
           String(d.fileName || ""),
           String(d.fileSize || ""),
-          String(d.fileUrl || "")
-        ].concat(chunks);
+          finalUrl
+        ];
 
         if (rNum) {
           sheetDocs.getRange(rNum, 1, 1, rowData.length).setValues([rowData]);
@@ -2403,15 +2453,30 @@ function doPost(e) {
 
     function formatDocDate(dateStr) {
       if (!dateStr) return "-";
-      const parts = dateStr.split("-");
-      if (parts.length === 3) {
-        const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-        const y = parseInt(parts[0], 10);
+      dateStr = String(dateStr).trim();
+      const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const enMonths = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+      // 1. จัดการวันที่แบบข้อความเต็มจากชีต เช่น "Wed Nov 04 2026 00:00:00 GMT+0700..."
+      const gmtMatch = dateStr.match(/[A-Za-z]{3}\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
+      if (gmtMatch) {
+        const mo = enMonths[gmtMatch[1]];
+        const d = parseInt(gmtMatch[2], 10);
+        const y = parseInt(gmtMatch[3], 10);
         const thaiY = y > 2400 ? y : y + 543;
-        const m = parseInt(parts[1], 10) - 1;
-        const d = parseInt(parts[2], 10);
-        return `${d} ${thaiMonths[m] || ""} ${thaiY}`;
+        return `${d} ${thaiMonths[mo] || ""} ${thaiY}`;
       }
+
+      // 2. จัดการวันที่แบบ YYYY-MM-DD
+      const m = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (m) {
+        const y = parseInt(m[1], 10);
+        const thaiY = y > 2400 ? y : y + 543;
+        const mo = parseInt(m[2], 10) - 1;
+        const d = parseInt(m[3], 10);
+        return `${d} ${thaiMonths[mo] || ""} ${thaiY}`;
+      }
+
       return dateStr;
     }
 
@@ -2507,16 +2572,17 @@ function doPost(e) {
 
             <!-- Col 5: Attached File & Download (190px, centered) -->
             <div class="mb-3 lg:mb-0 flex items-center justify-start lg:justify-center gap-1.5">
-              ${doc.fileData ? `
-                <button type="button" onclick="downloadOfficialDoc(${doc.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-xs transition-all hover:scale-105 cursor-pointer max-w-full" title="คลิกเพื่อดาวน์โหลดไฟล์ ${escapeHtml(doc.fileName || '')}">
+              ${doc.fileUrl ? `
+                <a href="${escapeHtml(doc.fileUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-xs transition-all hover:scale-105 max-w-full" title="เปิดเอกสารใน Google Drive (${escapeHtml(doc.fileName || 'เปิดดูเอกสาร')})">
+                  <i class="${isWord ? 'fa-solid fa-file-word text-blue-600' : 'fa-solid fa-file-pdf text-rose-600'} shrink-0 text-sm"></i>
+                  <span class="truncate max-w-[125px] text-[11px] font-medium">${escapeHtml(doc.fileName || 'เปิดไฟล์ใน Drive')}</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-slate-400 text-[10px] shrink-0"></i>
+                </a>
+              ` : doc.fileData ? `
+                <button type="button" onclick="downloadOfficialDoc('${doc.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-xs transition-all hover:scale-105 cursor-pointer max-w-full" title="คลิกเพื่อดาวน์โหลดไฟล์ ${escapeHtml(doc.fileName || '')}">
                   <i class="fa-solid fa-download text-indigo-600 shrink-0"></i>
                   <span class="truncate max-w-[130px] text-[11px]">${escapeHtml(doc.fileName || (isPdf ? 'เอกสาร.pdf' : 'เอกสาร.docx'))}</span>
                 </button>
-              ` : doc.fileUrl ? `
-                <a href="${escapeHtml(doc.fileUrl)}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-semibold shadow-xs transition-all hover:scale-105" title="เปิดลิงก์เอกสาร">
-                  <i class="fa-solid fa-arrow-up-right-from-square text-sky-600 shrink-0"></i>
-                  <span class="truncate max-w-[130px] text-[11px]">เปิดเอกสารออนไลน์</span>
-                </a>
               ` : `
                 <span class="text-xs text-slate-400 italic">ไม่มีไฟล์แนบ</span>
               `}
@@ -2659,14 +2725,14 @@ function doPost(e) {
         showToast("ไม่พบข้อมูลหนังสือราชการ", "error");
         return;
       }
-      if (doc.fileData) {
+      if (doc.fileUrl) {
+        window.open(doc.fileUrl, "_blank");
+        showToast("เปิดเอกสารจาก Google Drive เรียบร้อยแล้ว", "success");
+      } else if (doc.fileData) {
         const isPdf = doc.fileType === "pdf" || (doc.fileName && doc.fileName.toLowerCase().endsWith(".pdf"));
-        const fallbackName = `${(doc.title || "เอกสารราชการ").replace(/[\\/:*?"<>|]/g, "_")}${isPdf ? ".pdf" : ".docx"}`;
+        const fallbackName = `${(doc.title || "เอกสารราชการ").replace(/[\/:*?"<>|]/g, "_")}${isPdf ? ".pdf" : ".docx"}`;
         const fname = doc.fileName || fallbackName;
         window.downloadSingleImage(doc.fileData, fname);
-      } else if (doc.fileUrl) {
-        window.open(doc.fileUrl, "_blank");
-        showToast("เปิดเอกสารออนไลน์", "info");
       } else {
         showToast("รายการนี้ไม่มีไฟล์แนบ", "info");
       }
