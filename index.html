@@ -1403,11 +1403,22 @@ function saveImageToDrive(base64Data, noteTitle, imgIndex) {
   }
 }
 
-function testCreateFolder() {
-  var folderDocs = getOrCreateDocsFolder();
-  var folderNotes = getOrCreateNotesFolder();
-  Logger.log("โฟลเดอร์หนังสือราชการ: " + folderDocs.getUrl());
-  Logger.log("โฟลเดอร์รูปภาพโน้ต: " + folderNotes.getUrl());
+// ฟังก์ชันลบไฟล์จริงใน Google Drive ลงถังขยะเมื่อมีการลบรายการในเว็บ
+function deleteDriveFilesFromRow(rowValues, startCol, endCol) {
+  for (var c = startCol; c <= endCol && c < rowValues.length; c++) {
+    var val = String(rowValues[c] || "").trim();
+    if (val) {
+      var match = val.match(/(?:file\\/d\\/|id=|lh3\\.googleusercontent\\.com\\/d\\/)([a-zA-Z0-9_-]{25,})/);
+      if (match && match[1]) {
+        try {
+          var file = DriveApp.getFileById(match[1]);
+          file.setTrashed(true); // ย้ายลงถังขยะใน Drive ทันที
+        } catch (err) {
+          Logger.log("Delete file error: " + err);
+        }
+      }
+    }
+  }
 }
 
 function getOrCreatePinSheet(ss) {
@@ -1433,6 +1444,8 @@ function doGet(e) {
       var rList = sNotes.getDataRange().getValues();
       for (var rIdx = rList.length - 1; rIdx >= 1; rIdx--) {
         if ((targetId && String(rList[rIdx][0]) === targetId) || (targetTitle && String(rList[rIdx][1]).trim() === targetTitle)) {
+          // ลบไฟล์รูปภาพใน Drive ด้วย
+          deleteDriveFilesFromRow(rList[rIdx], 6, 10);
           sNotes.deleteRow(rIdx + 1);
         }
       }
@@ -1448,6 +1461,8 @@ function doGet(e) {
       var rList = sDocs.getDataRange().getValues();
       for (var rIdx = rList.length - 1; rIdx >= 1; rIdx--) {
         if ((targetId && String(rList[rIdx][0]) === targetId) || (targetTitle && String(rList[rIdx][2]).trim() === targetTitle)) {
+          // ลบไฟล์แนบเอกสารใน Drive ด้วย
+          deleteDriveFilesFromRow(rList[rIdx], 9, 9);
           sDocs.deleteRow(rIdx + 1);
         }
       }
@@ -1589,7 +1604,6 @@ function doPost(e) {
         if (!n || !n.title) continue;
         var rNum = existingIds[String(n.id)] || existingTitles[String(n.title).trim()];
 
-        // นำรูปภาพทั้งหมดไปบันทึกเป็นไฟล์จริงใน Google Drive แล้วเก็บ Direct Link แทน
         var rawImages = [];
         if (n.images && Array.isArray(n.images)) {
           rawImages = n.images;
@@ -1640,6 +1654,7 @@ function doPost(e) {
       var rows = sheetNotes.getDataRange().getValues();
       for (var rIdx = rows.length - 1; rIdx >= 1; rIdx--) {
         if ((targetId && String(rows[rIdx][0]) === targetId) || (targetTitle && String(rows[rIdx][1]).trim() === targetTitle)) {
+          deleteDriveFilesFromRow(rows[rIdx], 6, 10);
           sheetNotes.deleteRow(rIdx + 1);
         }
       }
@@ -1662,7 +1677,6 @@ function doPost(e) {
         if (!d || !d.title) continue;
         var rNum = existingIds[String(d.id)] || existingTitles[String(d.title).trim()];
 
-        // นำไฟล์แนบไปสร้างเป็นไฟล์จริงใน Google Drive แล้วเก็บ URL แทน
         var finalUrl = String(d.fileUrl || "");
         if (d.fileData && String(d.fileData).indexOf("data:") === 0) {
           var driveUrl = saveBase64ToDrive(d.fileData, d.fileName, d.fileType);
@@ -1700,6 +1714,7 @@ function doPost(e) {
       var rows = sheetDocs.getDataRange().getValues();
       for (var rIdx = rows.length - 1; rIdx >= 1; rIdx--) {
         if ((targetId && String(rows[rIdx][0]) === targetId) || (targetTitle && String(rows[rIdx][2]).trim() === targetTitle)) {
+          deleteDriveFilesFromRow(rows[rIdx], 9, 9);
           sheetDocs.deleteRow(rIdx + 1);
         }
       }
