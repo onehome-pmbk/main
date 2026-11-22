@@ -76,6 +76,121 @@
       border-radius: 4px;
       font-weight: 600;
     }
+
+    /* Dark Mode Overrides */
+    html.dark-mode body {
+      background-color: #0b1120 !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark-mode .bg-slate-50,
+    html.dark-mode .bg-slate-50\/50,
+    html.dark-mode .bg-slate-50\/60,
+    html.dark-mode .bg-slate-50\/80,
+    html.dark-mode .bg-blue-950\/5 {
+      background-color: #0f172a !important;
+    }
+    html.dark-mode .bg-white {
+      background-color: #162032 !important;
+      color: #e2e8f0;
+    }
+    html.dark-mode .bg-slate-100,
+    html.dark-mode .bg-slate-100\/80 {
+      background-color: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark-mode .bg-blue-50,
+    html.dark-mode .bg-blue-50\/60,
+    html.dark-mode .bg-blue-50\/70,
+    html.dark-mode .bg-blue-50\/80,
+    html.dark-mode .bg-pink-50,
+    html.dark-mode .bg-pink-50\/60,
+    html.dark-mode .bg-pink-50\/70,
+    html.dark-mode .bg-pink-50\/80,
+    html.dark-mode .bg-emerald-50,
+    html.dark-mode .bg-emerald-50\/70,
+    html.dark-mode .bg-amber-50,
+    html.dark-mode .bg-purple-50,
+    html.dark-mode .bg-indigo-50\/60 {
+      background-color: #1a2538 !important;
+    }
+    html.dark-mode .text-slate-900,
+    html.dark-mode .text-slate-800,
+    html.dark-mode .text-blue-950,
+    html.dark-mode .text-pink-950,
+    html.dark-mode .text-indigo-950,
+    html.dark-mode .text-emerald-950,
+    html.dark-mode .text-emerald-900 {
+      color: #f1f5f9 !important;
+    }
+    html.dark-mode .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark-mode .text-slate-600,
+    html.dark-mode .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark-mode .text-blue-800,
+    html.dark-mode .text-blue-700,
+    html.dark-mode .text-blue-600 {
+      color: #60a5fa !important;
+    }
+    html.dark-mode .text-pink-800,
+    html.dark-mode .text-pink-700,
+    html.dark-mode .text-pink-600 {
+      color: #f472b6 !important;
+    }
+    html.dark-mode .text-emerald-800,
+    html.dark-mode .text-emerald-700 {
+      color: #34d399 !important;
+    }
+    html.dark-mode .border-slate-200,
+    html.dark-mode .border-slate-200\/80,
+    html.dark-mode .border-slate-300,
+    html.dark-mode .border-slate-100,
+    html.dark-mode .border-blue-100,
+    html.dark-mode .border-blue-200,
+    html.dark-mode .border-pink-100,
+    html.dark-mode .border-pink-200,
+    html.dark-mode .border-emerald-100,
+    html.dark-mode .border-emerald-200 {
+      border-color: #293548 !important;
+    }
+    html.dark-mode tbody tr:hover {
+      background-color: #1e293b !important;
+    }
+    html.dark-mode input,
+    html.dark-mode select,
+    html.dark-mode textarea {
+      background-color: #0f172a !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+    }
+    html.dark-mode input::placeholder,
+    html.dark-mode textarea::placeholder {
+      color: #64748b !important;
+    }
+    html.dark-mode footer {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+    }
+    html.dark-mode .shadow-xl,
+    html.dark-mode .shadow-slate-200\/60 {
+      --tw-shadow-color: rgba(0, 0, 0, 0.45);
+    }
+    html.dark-mode .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    html.dark-mode .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+    html.dark-mode #btn-scroll-top {
+      background-color: #1e293b !important;
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+    html.dark-mode #btn-scroll-top:hover {
+      background-color: #334155 !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 selection:bg-pink-100 selection:text-pink-900">
@@ -103,7 +218,11 @@
             เว็บไซต์แหล่งข้อมูลที่รวมไว้จุด สะดวก ค้นหาได้รวดเร็ว เข้าถึงง่าย
           </p>
         </div>
-        <div class="flex-shrink-0 pt-1">
+        <div class="flex-shrink-0 pt-1 flex flex-wrap items-center gap-2.5">
+          <button type="button" id="btn-theme-toggle" onclick="toggleThemeMode()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs sm:text-sm font-semibold backdrop-blur-md transition-all shadow-lg border border-white/20 cursor-pointer" title="สลับโหมด สว่าง / มืด">
+            <i id="theme-toggle-icon" class="fa-solid fa-moon text-amber-300 text-xs sm:text-sm"></i>
+            <span id="theme-toggle-label">โหมดมืด</span>
+          </button>
           <a href="#section-gallery" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-600 hover:bg-pink-500 active:scale-95 text-white text-xs sm:text-sm font-semibold backdrop-blur-md transition-all shadow-lg shadow-pink-600/30 border border-pink-400/30">
             <i class="fa-solid fa-note-sticky text-xs sm:text-sm"></i>
             <span>คำสั่ง / โน็ต</span>
@@ -1351,7 +1470,18 @@
         <div class="flex items-center gap-2">
           <span id="lightbox-counter" class="text-xs font-semibold px-3 py-1 rounded-full bg-white/20 backdrop-blur-md">1 / 1</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <div class="inline-flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-md px-2 py-1 border border-white/15">
+            <button id="btn-lightbox-zoom-out" type="button" onclick="zoomLightbox(-0.35)" class="w-7 h-7 rounded-full hover:bg-white/20 text-white flex items-center justify-center text-xs cursor-pointer transition-colors" title="ย่อรูป (-)">
+              <i class="fa-solid fa-magnifying-glass-minus"></i>
+            </button>
+            <button id="btn-lightbox-zoom-reset" type="button" onclick="resetLightboxZoom()" class="px-2 py-0.5 rounded-full hover:bg-white/20 text-white text-[11px] font-mono font-bold cursor-pointer transition-colors min-w-[46px] text-center" title="รีเซ็ตขนาด 100%">
+              100%
+            </button>
+            <button id="btn-lightbox-zoom-in" type="button" onclick="zoomLightbox(0.35)" class="w-7 h-7 rounded-full hover:bg-white/20 text-white flex items-center justify-center text-xs cursor-pointer transition-colors" title="ขยายรูป (+)">
+              <i class="fa-solid fa-magnifying-glass-plus"></i>
+            </button>
+          </div>
           <button id="btn-download-lightbox" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-pink-600 text-white text-xs font-semibold backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95" title="ดาวน์โหลดรูปที่กำลังเปิดอยู่นี้">
             <i class="fa-solid fa-download"></i>
             <span>ดาวน์โหลดรูปนี้</span>
@@ -1368,12 +1498,14 @@
 
       <!-- Main Image Display with Floating Navigation Arrows -->
       <div class="relative flex items-center justify-center w-full max-h-[78vh]">
-        <img id="lightbox-img" src="" alt="ภาพขยาย" class="max-w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl transition-all duration-200">
+        <div id="lightbox-img-stage" class="relative flex items-center justify-center w-full max-h-[78vh] overflow-hidden rounded-2xl">
+          <img id="lightbox-img" src="" alt="ภาพขยาย" draggable="false" class="max-w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl transition-transform duration-150 origin-center cursor-zoom-in select-none">
+        </div>
         
-        <button id="btn-lightbox-prev" type="button" class="absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 hover:bg-pink-600 text-white flex items-center justify-center text-base backdrop-blur-md shadow-lg transition-all cursor-pointer">
+        <button id="btn-lightbox-prev" type="button" class="z-20 absolute left-2 sm:-left-12 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 hover:bg-pink-600 text-white flex items-center justify-center text-base backdrop-blur-md shadow-lg transition-all cursor-pointer">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <button id="btn-lightbox-next" type="button" class="absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 hover:bg-pink-600 text-white flex items-center justify-center text-base backdrop-blur-md shadow-lg transition-all cursor-pointer">
+        <button id="btn-lightbox-next" type="button" class="z-20 absolute right-2 sm:-right-12 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/80 hover:bg-pink-600 text-white flex items-center justify-center text-base backdrop-blur-md shadow-lg transition-all cursor-pointer">
           <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
@@ -3363,6 +3495,37 @@ function doPost(e) {
       checkScroll();
     }
 
+    // Theme Mode (Light / Dark)
+    window.applyThemeMode = function(mode) {
+      const isDark = mode === 'dark';
+      document.documentElement.classList.toggle('dark-mode', isDark);
+      const icon = document.getElementById('theme-toggle-icon');
+      const label = document.getElementById('theme-toggle-label');
+      if (icon && label) {
+        if (isDark) {
+          icon.className = 'fa-solid fa-sun text-amber-300 text-xs sm:text-sm';
+          label.textContent = 'โหมดสว่าง';
+        } else {
+          icon.className = 'fa-solid fa-moon text-amber-300 text-xs sm:text-sm';
+          label.textContent = 'โหมดมืด';
+        }
+      }
+    };
+
+    window.toggleThemeMode = function() {
+      const isDark = !document.documentElement.classList.contains('dark-mode');
+      const nextMode = isDark ? 'dark' : 'light';
+      try { localStorage.setItem('one_home_theme_mode', nextMode); } catch (e) {}
+      window.applyThemeMode(nextMode);
+    };
+
+    (function initSavedTheme() {
+      try {
+        const saved = localStorage.getItem('one_home_theme_mode');
+        if (saved === 'dark') window.applyThemeMode('dark');
+      } catch (e) {}
+    })();
+
     function initApp() {
       initializeDropdowns();
       updateSearchUI();
@@ -3995,8 +4158,112 @@ function doPost(e) {
       let currentLightboxImages = [];
       let currentLightboxIndex = 0;
       let currentLightboxTitle = '';
+      let lightboxScale = 1;
+      let lightboxPanX = 0;
+      let lightboxPanY = 0;
+      let isDraggingLightbox = false;
+      let lbDragStartX = 0;
+      let lbDragStartY = 0;
+
+      function applyLightboxTransform(noTransition = false) {
+        const img = document.getElementById('lightbox-img');
+        const resetBtn = document.getElementById('btn-lightbox-zoom-reset');
+        if (img) {
+          img.style.transition = noTransition ? 'none' : 'transform 150ms ease-out';
+          img.style.transform = `translate(${lightboxPanX}px, ${lightboxPanY}px) scale(${lightboxScale})`;
+          img.style.cursor = lightboxScale > 1 ? (isDraggingLightbox ? 'grabbing' : 'grab') : 'zoom-in';
+        }
+        if (resetBtn) {
+          resetBtn.textContent = `${Math.round(lightboxScale * 100)}%`;
+        }
+      }
+
+      window.resetLightboxZoom = function() {
+        lightboxScale = 1;
+        lightboxPanX = 0;
+        lightboxPanY = 0;
+        applyLightboxTransform();
+      };
+
+      window.zoomLightbox = function(delta) {
+        const nextScale = Math.min(4, Math.max(1, Number((lightboxScale + delta).toFixed(2))));
+        lightboxScale = nextScale;
+        if (lightboxScale <= 1) {
+          lightboxPanX = 0;
+          lightboxPanY = 0;
+        }
+        applyLightboxTransform();
+      };
+
+      (function initLightboxZoomAndPan() {
+        const stage = document.getElementById('lightbox-img-stage');
+        const img = document.getElementById('lightbox-img');
+        if (!stage || !img) return;
+
+        stage.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.zoomLightbox(e.deltaY < 0 ? 0.25 : -0.25);
+        }, { passive: false });
+
+        img.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          if (lightboxScale > 1) {
+            window.resetLightboxZoom();
+          } else {
+            lightboxScale = 2.2;
+            lightboxPanX = 0;
+            lightboxPanY = 0;
+            applyLightboxTransform();
+          }
+        });
+
+        img.addEventListener('mousedown', (e) => {
+          if (lightboxScale <= 1) return;
+          e.preventDefault();
+          e.stopPropagation();
+          isDraggingLightbox = true;
+          lbDragStartX = e.clientX - lightboxPanX;
+          lbDragStartY = e.clientY - lightboxPanY;
+          applyLightboxTransform(true);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+          if (!isDraggingLightbox) return;
+          lightboxPanX = e.clientX - lbDragStartX;
+          lightboxPanY = e.clientY - lbDragStartY;
+          applyLightboxTransform(true);
+        });
+
+        window.addEventListener('mouseup', () => {
+          if (!isDraggingLightbox) return;
+          isDraggingLightbox = false;
+          applyLightboxTransform();
+        });
+
+        img.addEventListener('touchstart', (e) => {
+          if (lightboxScale <= 1 || e.touches.length !== 1) return;
+          isDraggingLightbox = true;
+          lbDragStartX = e.touches[0].clientX - lightboxPanX;
+          lbDragStartY = e.touches[0].clientY - lightboxPanY;
+        }, { passive: true });
+
+        img.addEventListener('touchmove', (e) => {
+          if (!isDraggingLightbox || e.touches.length !== 1) return;
+          e.preventDefault();
+          lightboxPanX = e.touches[0].clientX - lbDragStartX;
+          lightboxPanY = e.touches[0].clientY - lbDragStartY;
+          applyLightboxTransform(true);
+        }, { passive: false });
+
+        img.addEventListener('touchend', () => {
+          isDraggingLightbox = false;
+          applyLightboxTransform();
+        });
+      })();
 
       function renderLightboxUI() {
+        window.resetLightboxZoom();
         const box = document.getElementById('modal-lightbox');
         const img = document.getElementById('lightbox-img');
         const caption = document.getElementById('lightbox-caption');
@@ -4091,6 +4358,9 @@ function doPost(e) {
           if (e.key === 'Escape') box.classList.add('hidden');
           if (e.key === 'ArrowRight') nextLightboxImage();
           if (e.key === 'ArrowLeft') prevLightboxImage();
+          if (e.key === '+' || e.key === '=') window.zoomLightbox(0.35);
+          if (e.key === '-') window.zoomLightbox(-0.35);
+          if (e.key === '0') window.resetLightboxZoom();
         }
       });
 
